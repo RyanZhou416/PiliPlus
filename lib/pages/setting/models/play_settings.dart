@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 List<SettingsModel> get playSettings => [
   const SwitchModel(
@@ -36,7 +37,7 @@ List<SettingsModel> get playSettings => [
       defaultVal: true,
     ),
   NormalModel(
-    onTap: (context, setState) => Get.toNamed('/playSpeedSet'),
+    onTap: (context, setState) => Nav.push('/playSpeedSet'),
     leading: const Icon(Icons.speed_outlined),
     title: '倍速设置',
     subtitle: '设置视频播放速度',

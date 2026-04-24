@@ -5,7 +5,7 @@ import 'package:PiliPlus/pages/fav_detail/controller.dart';
 import 'package:PiliPlus/pages/fav_detail/widget/fav_video_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class FavSortPage extends StatefulWidget {
   const FavSortPage({super.key, required this.favDetailController});
@@ -53,7 +53,7 @@ class _FavSortPageState extends State<FavSortPage> {
           TextButton(
             onPressed: () async {
               if (sort.isEmpty) {
-                Get.back();
+                Nav.back();
                 return;
               }
               final res = await FavHttp.sortFav(
@@ -63,7 +63,7 @@ class _FavSortPageState extends State<FavSortPage> {
               if (res.isSuccess) {
                 SmartDialog.showToast('排序完成');
                 _favDetailController.loadingState.value = Success(sortList);
-                Get.back();
+                Nav.back();
               } else {
                 res.toast();
               }

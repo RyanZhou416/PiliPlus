@@ -15,10 +15,9 @@ import 'package:PiliPlus/utils/utils.dart';
 import 'package:PiliPlus/utils/waterfall.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class MyReply extends StatefulWidget {
   const MyReply({super.key});
@@ -161,7 +160,7 @@ class _MyReplyState extends State<MyReply> with DynMixin {
             dense: true,
             title: const Text('导出至剪贴板', style: style),
             onTap: () {
-              Get.back();
+              Nav.back();
               exportToClipBoard(onExport: _onExport);
             },
           ),
@@ -169,7 +168,7 @@ class _MyReplyState extends State<MyReply> with DynMixin {
             dense: true,
             title: const Text('导出文件至本地', style: style),
             onTap: () {
-              Get.back();
+              Nav.back();
               exportToLocalFile(
                 onExport: _onExport,
                 localFileName: () => 'reply',
@@ -205,7 +204,7 @@ class _MyReplyState extends State<MyReply> with DynMixin {
             dense: true,
             title: const Text('从剪贴板导入', style: style),
             onTap: () {
-              Get.back();
+              Nav.back();
               importFromClipBoard<List<dynamic>>(
                 context,
                 title: '评论',
@@ -219,7 +218,7 @@ class _MyReplyState extends State<MyReply> with DynMixin {
             dense: true,
             title: const Text('从本地文件导入', style: style),
             onTap: () {
-              Get.back();
+              Nav.back();
               importFromLocalFile<List<dynamic>>(onImport: _onImport);
             },
           ),

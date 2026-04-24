@@ -33,6 +33,7 @@ import 'package:flutter/material.dart' hide DraggableScrollableSheet;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class AudioPage extends StatefulWidget {
   const AudioPage({super.key});
@@ -50,9 +51,9 @@ class AudioPage extends StatefulWidget {
     Duration? start,
     String? audioUrl,
     int? extraId,
-  }) => Get.toNamed(
+  }) => Nav.push(
     '/audio',
-    arguments: {
+    extra: {
       'id': ?id,
       'oid': oid,
       'subId': ?subId,
@@ -266,7 +267,7 @@ class _AudioPageState extends State<AudioPage> {
                               end: 24.0,
                             ),
                             onTap: () {
-                              Get.back();
+                              Nav.back();
                               if (!isCurr) {
                                 _controller.playIndex(
                                   index,
@@ -316,7 +317,7 @@ class _AudioPageState extends State<AudioPage> {
                       dense: true,
                       minTileHeight: 45,
                       onTap: () {
-                        Get.back();
+                        Nav.back();
                         if (!isCurr) {
                           _controller.playIndex(index);
                         }
@@ -391,7 +392,7 @@ class _AudioPageState extends State<AudioPage> {
             child: Column(
               children: [
                 InkWell(
-                  onTap: Get.back,
+                  onTap: () => Nav.back(),
                   borderRadius: Style.bottomSheetRadius,
                   child: SizedBox(
                     height: 35,
@@ -425,7 +426,7 @@ class _AudioPageState extends State<AudioPage> {
                     bottom: MediaQuery.viewPaddingOf(context).bottom,
                   ),
                   child: InkWell(
-                    onTap: Get.back,
+                    onTap: () => Nav.back(),
                     child: SizedBox(
                       height: 45,
                       child: Center(
@@ -460,7 +461,7 @@ class _AudioPageState extends State<AudioPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             InkWell(
-              onTap: Get.back,
+              onTap: () => Nav.back(),
               borderRadius: Style.bottomSheetRadius,
               child: SizedBox(
                 height: 35,
@@ -542,7 +543,7 @@ class _AudioPageState extends State<AudioPage> {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        Get.back();
+        Nav.back();
         if (!isCurr) {
           _controller.playMode.value = playMode;
           GStorage.setting.put(SettingBoxKey.audioPlayMode, playMode.index);
@@ -595,7 +596,7 @@ class _AudioPageState extends State<AudioPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               InkWell(
-                onTap: Get.back,
+                onTap: () => Nav.back(),
                 borderRadius: Style.bottomSheetRadius,
                 child: SizedBox(
                   height: 35,
@@ -620,7 +621,7 @@ class _AudioPageState extends State<AudioPage> {
               //     style: TextStyle(fontSize: 14),
               //   ),
               //   onTap: () {
-              //     Get.back();
+              //     Nav.back();
               //     _controller.showTimerDialog();
               //   },
               // ),
@@ -631,7 +632,7 @@ class _AudioPageState extends State<AudioPage> {
                   style: TextStyle(fontSize: 14),
                 ),
                 onTap: () {
-                  Get.back();
+                  Nav.back();
                   PageUtils.reportVideo(_controller.oid.toInt());
                 },
               ),
@@ -918,7 +919,7 @@ class _AudioPageState extends State<AudioPage> {
                         behavior: HitTestBehavior.opaque,
                         onTap: () {
                           _controller.player?.pause();
-                          Get.toNamed('/member?mid=${audioItem.owner.mid}');
+                          Nav.push('/member?mid=${audioItem.owner.mid}');
                         },
                         child: Row(
                           spacing: 6,

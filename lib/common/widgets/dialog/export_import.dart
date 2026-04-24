@@ -9,13 +9,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard;
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:re_highlight/languages/json.dart';
 import 'package:re_highlight/re_highlight.dart';
 import 'package:re_highlight/styles/base16/github.dart';
 import 'package:re_highlight/styles/github-dark.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 void exportToClipBoard({
   required ValueGetter<String> onExport,
@@ -88,7 +87,7 @@ Future<void> importFromClipBoard<T>(
           ),
           actions: [
             TextButton(
-              onPressed: Get.back,
+              onPressed: () => Nav.back(),
               child: Text(
                 '取消',
                 style: TextStyle(
@@ -97,7 +96,7 @@ Future<void> importFromClipBoard<T>(
               ),
             ),
             TextButton(
-              onPressed: () => Get.back(result: true),
+              onPressed: () => Nav.back(true),
               child: const Text('确定'),
             ),
           ],
@@ -178,7 +177,7 @@ void importFromInput<T>(
       ),
       actions: [
         TextButton(
-          onPressed: Get.back,
+          onPressed: () => Nav.back(),
           child: Text(
             '取消',
             style: TextStyle(
@@ -191,7 +190,7 @@ void importFromInput<T>(
             if (key.currentState?.validate() == true) {
               try {
                 await onImport(json);
-                Get.back();
+                Nav.back();
                 SmartDialog.showToast('导入成功');
                 return;
               } catch (e) {
@@ -226,7 +225,7 @@ Future<void> showImportExportDialog<T>(
           dense: true,
           title: const Text('导出至剪贴板', style: style),
           onTap: () {
-            Get.back();
+            Nav.back();
             exportToClipBoard(onExport: onExport);
           },
         ),
@@ -234,7 +233,7 @@ Future<void> showImportExportDialog<T>(
           dense: true,
           title: const Text('导出文件至本地', style: style),
           onTap: () {
-            Get.back();
+            Nav.back();
             exportToLocalFile(onExport: onExport, localFileName: localFileName);
           },
         ),
@@ -246,7 +245,7 @@ Future<void> showImportExportDialog<T>(
           dense: true,
           title: const Text('输入', style: style),
           onTap: () {
-            Get.back();
+            Nav.back();
             importFromInput<T>(context, title: title, onImport: onImport);
           },
         ),
@@ -254,7 +253,7 @@ Future<void> showImportExportDialog<T>(
           dense: true,
           title: const Text('从剪贴板导入', style: style),
           onTap: () {
-            Get.back();
+            Nav.back();
             importFromClipBoard<T>(
               context,
               title: title,
@@ -267,7 +266,7 @@ Future<void> showImportExportDialog<T>(
           dense: true,
           title: const Text('从本地文件导入', style: style),
           onTap: () {
-            Get.back();
+            Nav.back();
             importFromLocalFile<T>(onImport: onImport);
           },
         ),

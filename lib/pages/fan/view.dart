@@ -8,6 +8,8 @@ import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class FansPage extends StatefulWidget {
   const FansPage({
@@ -26,9 +28,9 @@ class FansPage extends StatefulWidget {
     if (mid == null) {
       return;
     }
-    Get.toNamed(
+    Nav.push(
       '/fan',
-      arguments: {
+      extra: {
         'mid': Utils.safeToInt(mid),
         'name': name,
       },
@@ -46,7 +48,7 @@ class _FansPageState extends FollowTypePageState<FansPage> {
     super.initState();
     controller = Get.put(
       FansController(widget.showName),
-      tag: Get.arguments?['mid']?.toString() ?? Utils.generateRandomString(8),
+      tag: Nav.arguments?['mid']?.toString() ?? Utils.generateRandomString(8),
     );
   }
 
@@ -85,7 +87,7 @@ class _FansPageState extends FollowTypePageState<FansPage> {
           );
           return;
         }
-        Get.toNamed('/member?mid=${item.mid}');
+        Nav.push('/member?mid=${item.mid}');
       },
       onLongPress: flag ? onRemove : null,
       onSecondaryTap: flag && !PlatformUtils.isMobile ? onRemove : null,

@@ -41,6 +41,7 @@ import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 ///
 /// created by dom on 2026/02/14
@@ -230,7 +231,7 @@ class _GalleryViewerState extends State<GalleryViewer>
 
     if (!_animateController.isDismissed) {
       if (_animateController.value > 0.2) {
-        Get.back();
+        Nav.back();
       } else {
         _animateController.reverse();
       }
@@ -481,7 +482,7 @@ class _GalleryViewerState extends State<GalleryViewer>
     EasyThrottle.throttle(
       'VIEWER_TAP',
       const Duration(milliseconds: 555),
-      Get.back,
+      () => Nav.back(),
     );
   }
 
@@ -500,7 +501,7 @@ class _GalleryViewerState extends State<GalleryViewer>
             if (PlatformUtils.isMobile)
               ListTile(
                 onTap: () {
-                  Get.back();
+                  Nav.back();
                   ImageUtils.onShareImg(item.url);
                 },
                 dense: true,
@@ -508,7 +509,7 @@ class _GalleryViewerState extends State<GalleryViewer>
               ),
             ListTile(
               onTap: () {
-                Get.back();
+                Nav.back();
                 Utils.copyText(item.url);
               },
               dense: true,
@@ -516,7 +517,7 @@ class _GalleryViewerState extends State<GalleryViewer>
             ),
             ListTile(
               onTap: () {
-                Get.back();
+                Nav.back();
                 ImageUtils.downloadImg([item.url]);
               },
               dense: true,
@@ -525,7 +526,7 @@ class _GalleryViewerState extends State<GalleryViewer>
             if (PlatformUtils.isDesktop)
               ListTile(
                 onTap: () {
-                  Get.back();
+                  Nav.back();
                   PageUtils.launchURL(item.url);
                 },
                 dense: true,
@@ -534,7 +535,7 @@ class _GalleryViewerState extends State<GalleryViewer>
             else if (widget.sources.length > 1)
               ListTile(
                 onTap: () {
-                  Get.back();
+                  Nav.back();
                   ImageUtils.downloadImg(
                     widget.sources.map((item) => item.url).toList(),
                   );
@@ -545,7 +546,7 @@ class _GalleryViewerState extends State<GalleryViewer>
             if (item.sourceType == SourceType.livePhoto)
               ListTile(
                 onTap: () {
-                  Get.back();
+                  Nav.back();
                   ImageUtils.downloadLivePhoto(
                     url: item.url,
                     liveUrl: item.liveUrl!,

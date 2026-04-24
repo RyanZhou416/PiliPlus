@@ -14,16 +14,16 @@ import 'package:PiliPlus/utils/feed_back.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class WhisperDetailController extends CommonListController<RspSessionMsg, Msg> {
   late final account = Accounts.main;
 
-  final int talkerId = Get.arguments['talkerId'];
-  final String name = Get.arguments['name'];
-  final String face = Get.arguments['face'];
-  final int? mid = Get.arguments['mid'];
-  final bool isLive = Get.arguments['isLive'] ?? false;
+  final int talkerId = Nav.arguments['talkerId'];
+  final String name = Nav.arguments['name'];
+  final String face = Nav.arguments['face'];
+  final int? mid = Nav.arguments['mid'];
+  final bool isLive = Nav.arguments['isLive'] ?? false;
 
   Int64? msgSeqno;
 

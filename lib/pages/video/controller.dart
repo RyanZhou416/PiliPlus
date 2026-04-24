@@ -71,6 +71,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:media_kit/media_kit.dart' hide Subtitle;
 import 'package:path/path.dart' as path;
@@ -308,7 +309,7 @@ class VideoDetailController extends GetxController
   @override
   void onInit() {
     super.onInit();
-    args = Get.arguments;
+    args = Nav.arguments;
     videoType = args['videoType'];
     if (videoType == VideoType.pgc) {
       if (!isLoginVideo) {
@@ -576,7 +577,7 @@ class VideoDetailController extends GetxController
     if (isPlaying) {
       await plPlayerController.pause();
     }
-    await Get.key.currentState!.push(
+    await Nav.pushRoute(
       PublishRoute(
         pageBuilder: (buildContext, animation, secondaryAnimation) {
           return SendDanmakuPanel(
@@ -1507,7 +1508,7 @@ class VideoDetailController extends GetxController
         actions: [
           TextButton(
             onPressed: () {
-              Get.back();
+              Nav.back();
               this.videoUrl = videoUrl;
               this.audioUrl = audioUrl;
               playerInit();
@@ -1552,7 +1553,7 @@ class VideoDetailController extends GetxController
       if (kDebugMode) {
         debugPrint(title);
       }
-      Get.toNamed(
+      Nav.push(
         '/dlna',
         parameters: {
           'url': url,

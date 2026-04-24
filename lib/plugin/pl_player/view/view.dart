@@ -81,6 +81,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:screen_brightness_platform_interface/screen_brightness_platform_interface.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 part 'widgets.dart';
 
@@ -2169,7 +2170,7 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
             ),
             actions: [
               TextButton(
-                onPressed: Get.back,
+                onPressed: () => Nav.back(),
                 child: Text(
                   '取消',
                   style: TextStyle(
@@ -2180,7 +2181,7 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
               TextButton(
                 onPressed: () {
                   if (segment.first < segment.second) {
-                    Get.back(result: true);
+                    Nav.back(true);
                   }
                 },
                 child: const Text('确定'),
@@ -2411,7 +2412,7 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
                   MdiIcons.accountOutline,
                   color: Colors.white,
                 ),
-                onTap: () => Get.toNamed('/member?mid=${extra.mid}'),
+                onTap: () => Nav.push('/member?mid=${extra.mid}'),
               ),
               _dmActionItem(
                 const Icon(

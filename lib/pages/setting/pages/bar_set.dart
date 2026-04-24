@@ -3,7 +3,7 @@ import 'package:PiliPlus/models/common/enum_with_label.dart';
 import 'package:PiliPlus/utils/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class BarSetPage extends StatefulWidget {
   const BarSetPage({super.key});
@@ -20,7 +20,7 @@ class _BarSetPageState extends State<BarSetPage> {
   @override
   void initState() {
     super.initState();
-    final Map<String, dynamic> args = Get.arguments;
+    final Map<String, dynamic> args = Nav.arguments;
     key = args['key'];
     title = args['title'];
     final List? cache = GStorage.setting.get(key);
@@ -46,7 +46,7 @@ class _BarSetPageState extends State<BarSetPage> {
   }
 
   void onReset() {
-    Get.back();
+    Nav.back();
     GStorage.setting.delete(key);
     SmartDialog.showToast('重置成功，下次启动时生效');
   }

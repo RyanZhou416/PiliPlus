@@ -20,6 +20,7 @@ import 'package:PiliPlus/utils/request_utils.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:PiliPlus/utils/nav.dart';
 import 'package:get/get.dart';
 
 class FavDetailPage extends StatefulWidget {
@@ -36,7 +37,7 @@ class _FavDetailPageState extends State<FavDetailPage> with GridMixin {
   @override
   void initState() {
     super.initState();
-    mediaId = Get.parameters['mediaId']!;
+    mediaId = Nav.parameters['mediaId']!;
     _favDetailController = Get.put(
       FavDetailController(),
       tag: Utils.makeHeroTag(mediaId),
@@ -179,9 +180,9 @@ class _FavDetailPageState extends State<FavDetailPage> with GridMixin {
         tooltip: '搜索',
         onPressed: () {
           final folderInfo = _favDetailController.folderInfo.value;
-          Get.toNamed(
+          Nav.push(
             '/favSearch',
-            arguments: {
+            extra: {
               'type': 0,
               'mediaId': int.parse(mediaId),
               'title': folderInfo.title,
@@ -238,7 +239,7 @@ class _FavDetailPageState extends State<FavDetailPage> with GridMixin {
               ),
               PopupMenuItem(
                 onTap: () =>
-                    Get.toNamed(
+                    Nav.push(
                       '/createFav',
                       parameters: {'mediaId': mediaId},
                     )?.then((res) {
@@ -285,7 +286,7 @@ class _FavDetailPageState extends State<FavDetailPage> with GridMixin {
                         FavHttp.deleteFolder(mediaIds: mediaId).then((res) {
                           if (res.isSuccess) {
                             SmartDialog.showToast('删除成功');
-                            Get.back(result: true);
+                            Nav.back(true);
                           } else {
                             res.toast();
                           }
@@ -430,7 +431,7 @@ class _FavDetailPageState extends State<FavDetailPage> with GridMixin {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () => Get.toNamed(
+                            onTap: () => Nav.push(
                               '/member?mid=${folderInfo.upper!.mid}',
                             ),
                             child: Text(

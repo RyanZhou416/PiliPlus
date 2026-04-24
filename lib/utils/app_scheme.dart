@@ -23,7 +23,7 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 abstract final class PiliScheme {
   static late AppLinks appLinks;
@@ -98,7 +98,7 @@ abstract final class PiliScheme {
       case 'bilibili':
         switch (host) {
           case 'root':
-            Get.key.currentState!.popUntil(
+            Nav.popUntil(
               (Route<dynamic> route) => route.isFirst,
             );
             return true;
@@ -204,7 +204,7 @@ abstract final class PiliScheme {
               );
               return true;
             }
-            Get.toNamed('/search');
+            Nav.push('/search');
             return true;
           case 'article':
             // bilibili://article/40679479?jump_opus=1&jump_opus_type=1&opus_type=article&h5awaken=random
@@ -344,7 +344,7 @@ abstract final class PiliScheme {
             }
             return false;
           case 'history':
-            Get.toNamed('/history');
+            Nav.push('/history');
             return true;
           case 'main':
             if (path.startsWith('/favorite')) {
@@ -357,36 +357,40 @@ abstract final class PiliScheme {
                   if (kDebugMode) debugPrint('favorite jump: $e');
                 }
               }
-              Get.toNamed('/fav', arguments: index);
+              Nav.push('/fav', extra: index);
               return true;
             }
             return false;
           case 'livearea':
-            Get.to(
-              Scaffold(
-                resizeToAvoidBottomInset: false,
-                appBar: AppBar(title: const Text('直播')),
-                body: const ViewSafeArea(child: LivePage()),
+            Nav.pushRoute(
+              MaterialPageRoute(
+                builder: (_) => Scaffold(
+                  resizeToAvoidBottomInset: false,
+                  appBar: AppBar(title: const Text('直播')),
+                  body: const ViewSafeArea(child: LivePage()),
+                ),
               ),
             );
             return true;
           case 'rank':
-            Get.to(
-              Scaffold(
-                resizeToAvoidBottomInset: false,
-                appBar: AppBar(title: const Text('排行榜')),
-                body: const ViewSafeArea(child: RankPage()),
+            Nav.pushRoute(
+              MaterialPageRoute(
+                builder: (_) => Scaffold(
+                  resizeToAvoidBottomInset: false,
+                  appBar: AppBar(title: const Text('排行榜')),
+                  body: const ViewSafeArea(child: RankPage()),
+                ),
               ),
             );
             return true;
           case 'login':
-            Get.toNamed('/loginPage');
+            Nav.push('/loginPage');
             return true;
           case 'music':
             if (path.startsWith('/playlist/')) {
               final mediaId = uriDigitRegExp.firstMatch(path)?.group(1);
               if (mediaId != null) {
-                Get.toNamed(
+                Nav.push(
                   '/favDetail',
                   parameters: {
                     'mediaId': mediaId,
@@ -398,7 +402,7 @@ abstract final class PiliScheme {
             }
             return false;
           case 'download':
-            Get.toNamed('/download');
+            Nav.push('/download');
             return true;
           default:
             if (!selfHandle) {
@@ -815,7 +819,7 @@ abstract final class PiliScheme {
         // https://www.bilibili.com/bubble/home/1
         final id = uriDigitRegExp.firstMatch(path)?.group(1);
         if (id != null) {
-          Get.toNamed('/bubble', arguments: {'id': id});
+          Nav.push('/bubble', extra: {'id': id});
           return true;
         }
         launchURL();

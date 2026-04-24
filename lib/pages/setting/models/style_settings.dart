@@ -41,6 +41,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:path/path.dart' as path;
+import 'package:PiliPlus/utils/nav.dart';
 
 List<SettingsModel> get styleSettings => [
   if (PlatformUtils.isDesktop) ...[
@@ -301,7 +302,7 @@ List<SettingsModel> get styleSettings => [
     },
   ),
   NormalModel(
-    onTap: (context, setState) => Get.toNamed('/colorSetting'),
+    onTap: (context, setState) => Nav.push('/colorSetting'),
     leading: const Icon(Icons.color_lens_outlined),
     title: '应用主题',
     getSubtitle: () => '当前主题：${Pref.dynamicColor ? '动态取色' : '指定颜色'}',
@@ -330,7 +331,7 @@ List<SettingsModel> get styleSettings => [
   ),
   NormalModel(
     onTap: (context, setState) async {
-      final res = await Get.toNamed('/fontSizeSetting');
+      final res = await Nav.push('/fontSizeSetting');
       if (res != null) {
         setState();
       }
@@ -343,9 +344,9 @@ List<SettingsModel> get styleSettings => [
     },
   ),
   NormalModel(
-    onTap: (context, setState) => Get.toNamed(
+    onTap: (context, setState) => Nav.push(
       '/barSetting',
-      arguments: {
+      extra: {
         'key': SettingBoxKey.tabBarSort,
         'defaultBars': HomeTabType.values,
         'title': '首页标签页',
@@ -356,9 +357,9 @@ List<SettingsModel> get styleSettings => [
     leading: const Icon(Icons.toc_outlined),
   ),
   NormalModel(
-    onTap: (context, setState) => Get.toNamed(
+    onTap: (context, setState) => Nav.push(
       '/barSetting',
-      arguments: {
+      extra: {
         'key': SettingBoxKey.navBarSort,
         'defaultBars': NavigationBarType.values,
         'title': 'Navbar',
@@ -378,7 +379,7 @@ List<SettingsModel> get styleSettings => [
   ),
   if (Platform.isAndroid)
     NormalModel(
-      onTap: (context, setState) => Get.toNamed('/displayModeSetting'),
+      onTap: (context, setState) => Nav.push('/displayModeSetting'),
       title: '屏幕帧率',
       leading: const Icon(Icons.autofps_select_outlined),
     ),
@@ -604,14 +605,14 @@ void _showSpringDialog(BuildContext context, _) {
       actions: [
         TextButton(
           onPressed: () {
-            Get.back();
+            Nav.back();
             GStorage.setting.delete(SettingBoxKey.springDescription);
             SmartDialog.showToast('重置成功，重启生效');
           },
           child: const Text('重置'),
         ),
         TextButton(
-          onPressed: Get.back,
+          onPressed: () => Nav.back(),
           child: Text(
             '取消',
             style: TextStyle(color: ColorScheme.of(context).outline),
@@ -624,7 +625,7 @@ void _showSpringDialog(BuildContext context, _) {
                 duration2Physical();
               }
               final res = springDescription.map(double.parse).toList();
-              Get.back();
+              Nav.back();
               GStorage.setting.put(SettingBoxKey.springDescription, res);
               SmartDialog.showToast('设置成功，重启生效');
             } catch (e) {

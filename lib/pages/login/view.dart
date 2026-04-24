@@ -21,6 +21,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -523,7 +524,7 @@ class _LoginPageState extends State<LoginPage> {
         leading: IconButton(
           tooltip: '关闭',
           icon: const Icon(Icons.close_outlined),
-          onPressed: Get.back,
+          onPressed: () => Nav.back(),
         ),
         title: Row(
           children: [

@@ -9,6 +9,7 @@ import 'package:PiliPlus/pages/common/search/common_search_controller.dart';
 import 'package:PiliPlus/pages/fav_detail/controller.dart';
 import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class FavSearchController
     extends CommonSearchController<FavDetailData, FavDetailItemModel>
@@ -16,13 +17,13 @@ class FavSearchController
         CommonMultiSelectMixin<FavDetailItemModel>,
         DeleteItemMixin,
         BaseFavController {
-  int type = Get.arguments['type'];
+  int type = Nav.arguments['type'];
   @override
-  int mediaId = Get.arguments['mediaId'];
+  int mediaId = Nav.arguments['mediaId'];
   @override
-  bool isOwner = Get.arguments['isOwner'];
-  dynamic count = Get.arguments['count'];
-  dynamic title = Get.arguments['title'];
+  bool isOwner = Nav.arguments['isOwner'];
+  dynamic count = Nav.arguments['count'];
+  dynamic title = Nav.arguments['title'];
 
   final Rx<FavOrderType> order = FavOrderType.mtime.obs;
 

@@ -21,6 +21,7 @@ import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class PgcReviewChildPage extends StatefulWidget {
   const PgcReviewChildPage({
@@ -135,7 +136,7 @@ class _PgcReviewChildPageState extends State<PgcReviewChildPage>
                   style: TextStyle(fontSize: 14),
                 ),
                 onTap: () {
-                  Get.back();
+                  Nav.back();
                   showModalBottomSheet(
                     context: context,
                     useSafeArea: true,
@@ -159,7 +160,7 @@ class _PgcReviewChildPageState extends State<PgcReviewChildPage>
                   style: TextStyle(fontSize: 14),
                 ),
                 onTap: () {
-                  Get.back();
+                  Nav.back();
                   showConfirmDialog(
                     context: context,
                     title: const Text('删除短评，同时删除评分？'),
@@ -193,7 +194,7 @@ class _PgcReviewChildPageState extends State<PgcReviewChildPage>
       type: MaterialType.transparency,
       child: InkWell(
         onTap: isLongReview
-            ? () => Get.toNamed(
+            ? () => Nav.push(
                 '/articlePage',
                 parameters: {
                   'id': item.articleId!.toString(),
@@ -212,7 +213,7 @@ class _PgcReviewChildPageState extends State<PgcReviewChildPage>
             children: [
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => Get.toNamed('/member?mid=${item.author!.mid}'),
+                onTap: () => Nav.push('/member?mid=${item.author!.mid}'),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

@@ -41,12 +41,13 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class LiveRoomController extends GetxController {
   LiveRoomController(this.heroTag);
   final String heroTag;
 
-  int roomId = Get.arguments;
+  int roomId = Nav.arguments;
   int? ruid;
   DanmakuController<DanmakuExtra>? danmakuController;
   PlPlayerController plPlayerController = PlPlayerController.getInstance(
@@ -241,7 +242,7 @@ class LiveRoomController extends GetxController {
         title: Text(title),
         actions: [
           TextButton(
-            onPressed: Get.back,
+            onPressed: () => Nav.back(),
             child: Text(
               '关闭',
               style: TextStyle(color: Get.theme.colorScheme.outline),
@@ -569,7 +570,7 @@ class LiveRoomController extends GetxController {
       SmartDialog.showToast('账号未登录');
       return;
     }
-    Get.key.currentState!.push(
+    Nav.pushRoute(
       PublishRoute(
         pageBuilder: (context, animation, secondaryAnimation) {
           return LiveSendDmPanel(

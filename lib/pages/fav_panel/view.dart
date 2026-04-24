@@ -5,7 +5,7 @@ import 'package:PiliPlus/pages/common/common_intro_controller.dart';
 import 'package:PiliPlus/utils/fav_utils.dart';
 import 'package:PiliPlus/utils/feed_back.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class FavPanel extends StatefulWidget {
   const FavPanel({
@@ -102,13 +102,13 @@ class _FavPanelState extends State<FavPanel> {
           backgroundColor: Colors.transparent,
           leading: IconButton(
             tooltip: '关闭',
-            onPressed: Get.back,
+            onPressed: () => Nav.back(),
             icon: const Icon(Icons.close_outlined),
           ),
           title: const Text('添加到收藏夹'),
           actions: [
             TextButton.icon(
-              onPressed: () => Get.toNamed('/createFav')?.then((data) {
+              onPressed: () => Nav.push<FavFolderInfo>('/createFav').then((data) {
                 if (data != null) {
                   widget.ctr.favFolderData
                     ..value.list?.insert(1, data)
@@ -148,7 +148,7 @@ class _FavPanelState extends State<FavPanel> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               FilledButton.tonal(
-                onPressed: Get.back,
+                onPressed: () => Nav.back(),
                 style: FilledButton.styleFrom(
                   visualDensity: VisualDensity.compact,
                   foregroundColor: theme.outline,

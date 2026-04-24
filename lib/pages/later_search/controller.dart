@@ -5,7 +5,7 @@ import 'package:PiliPlus/models_new/later/list.dart';
 import 'package:PiliPlus/pages/common/multi_select/base.dart';
 import 'package:PiliPlus/pages/common/search/common_search_controller.dart';
 import 'package:PiliPlus/pages/later/controller.dart' show BaseLaterController;
-import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class LaterSearchController
     extends CommonSearchController<LaterData, LaterItemModel>
@@ -13,8 +13,8 @@ class LaterSearchController
         CommonMultiSelectMixin<LaterItemModel>,
         DeleteItemMixin,
         BaseLaterController {
-  dynamic mid = Get.arguments['mid'];
-  dynamic count = Get.arguments['count'];
+  dynamic mid = Nav.arguments['mid'];
+  dynamic count = Nav.arguments['count'];
 
   @override
   Future<LoadingState<LaterData>> customGetData() => UserHttp.seeYouLater(

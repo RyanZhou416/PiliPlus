@@ -18,8 +18,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FilteringTextInputFormatter;
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 List<SettingsModel> get videoSettings => [
   const SwitchModel(
@@ -199,14 +199,14 @@ Future<void> _showLiveCDNDialog(
       ),
       actions: [
         TextButton(
-          onPressed: Get.back,
+          onPressed: () => Nav.back(),
           child: Text(
             '取消',
             style: TextStyle(color: ColorScheme.of(context).outline),
           ),
         ),
         TextButton(
-          onPressed: () => Get.back(result: host),
+          onPressed: () => Nav.back(host),
           child: const Text('确定'),
         ),
       ],
@@ -470,7 +470,7 @@ void _showAutoSyncDialog(BuildContext context, VoidCallback setState) {
       ),
       actions: [
         TextButton(
-          onPressed: Get.back,
+          onPressed: () => Nav.back(),
           child: Text(
             '取消',
             style: TextStyle(color: ColorScheme.of(context).outline),
@@ -481,7 +481,7 @@ void _showAutoSyncDialog(BuildContext context, VoidCallback setState) {
             try {
               // validate
               int.parse(autosync);
-              Get.back();
+              Nav.back();
               await GStorage.setting.put(SettingBoxKey.autosync, autosync);
               setState();
             } catch (e) {

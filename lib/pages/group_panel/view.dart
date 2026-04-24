@@ -8,6 +8,7 @@ import 'package:PiliPlus/utils/feed_back.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class GroupPanel extends StatefulWidget {
   final int mid;
@@ -49,7 +50,7 @@ class _GroupPanelState extends State<GroupPanel> {
 
   Future<void> onSave() async {
     if (!loadingState.isSuccess) {
-      Get.back();
+      Nav.back();
       return;
     }
     feedBack();
@@ -60,7 +61,7 @@ class _GroupPanelState extends State<GroupPanel> {
     );
     if (res.isSuccess) {
       SmartDialog.showToast('保存成功');
-      Get.back(result: tags);
+      Nav.back(tags);
     } else {
       res.toast();
     }
@@ -131,7 +132,7 @@ class _GroupPanelState extends State<GroupPanel> {
           backgroundColor: Colors.transparent,
           leading: IconButton(
             tooltip: '关闭',
-            onPressed: Get.back,
+            onPressed: () => Nav.back(),
             icon: const Icon(Icons.close_outlined),
           ),
           title: const Text('设置关注分组'),

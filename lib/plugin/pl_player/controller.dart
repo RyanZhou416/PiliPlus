@@ -59,6 +59,7 @@ import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:path/path.dart' as path;
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 typedef PlayCallback = Future<void>? Function();
 
@@ -274,19 +275,21 @@ class PlPlayerController with BlockConfigMixin {
   late bool _shouldSetPip = false;
 
   bool get _isCurrVideoPage {
-    final routing = Get.routing;
-    if (routing.route is! GetPageRoute) {
-      return false;
-    }
-    final currentRoute = routing.current;
-    return currentRoute.startsWith('/video') ||
-        currentRoute.startsWith('/liveRoom');
+    final location = Nav.router.routeInformationProvider.value.uri.path;
+    return location.startsWith('/video') ||
+        location.startsWith('/liveRoom');
   }
 
   bool get _isPreviousVideoPage {
-    final previousRoute = Get.previousRoute;
-    return previousRoute.startsWith('/video') ||
-        previousRoute.startsWith('/liveRoom');
+    final navigator = Nav.navigatorKey.currentState;
+    if (navigator == null) return false;
+    String? previousRoute;
+    navigator.popUntil((route) {
+      previousRoute = route.settings.name;
+      return true;
+    });
+    return previousRoute?.startsWith('/video') == true ||
+        previousRoute?.startsWith('/liveRoom') == true;
   }
 
   void enterPip({bool isAuto = false}) {
@@ -1740,7 +1743,7 @@ class PlPlayerController with BlockConfigMixin {
           context: Get.context!,
           builder: (context) => GestureDetector(
             onTap: () {
-              Get.back();
+              Nav.back();
               ImageUtils.saveByteImg(
                 bytes: value,
                 fileName: 'screenshot_${ImageUtils.time}',
@@ -1796,6 +1799,6 @@ class PlPlayerController with BlockConfigMixin {
       triggerFullScreen(status: false);
       return;
     }
-    Get.back();
+    Nav.back();
   }
 }

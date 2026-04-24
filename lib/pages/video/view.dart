@@ -68,6 +68,7 @@ import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 import 'package:screen_brightness_platform_interface/screen_brightness_platform_interface.dart';
 
 class VideoDetailPageV extends StatefulWidget {
@@ -83,7 +84,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
         RouteAware,
         RouteAwareMixin,
         WidgetsBindingObserver {
-  final heroTag = Get.arguments['heroTag'];
+  final heroTag = Nav.arguments['heroTag'];
 
   late final VideoDetailController videoDetailController;
   late final VideoReplyController _videoReplyController;
@@ -332,7 +333,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
       tag: videoDetailController.heroTag,
     );
 
-    if (!Get.previousRoute.startsWith('/video')) {
+    if (!Nav.previousRoute.startsWith('/video')) {
       if (Platform.isAndroid && !videoDetailController.setSystemBrightness) {
         ScreenBrightnessPlatform.instance.resetApplicationScreenBrightness();
       }
@@ -642,7 +643,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                                                     .colorScheme
                                                     .onSurface,
                                               ),
-                                              onPressed: Get.back,
+                                              onPressed: () => Nav.back(),
                                             ),
                                           ),
                                           SizedBox(
@@ -1178,7 +1179,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                           ),
                         ],
                       ),
-                      onPressed: Get.back,
+                      onPressed: () => Nav.back(),
                     ),
                   ),
                   SizedBox(
@@ -2012,9 +2013,9 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
       onChangeEpisode: videoDetailController.isUgc
           ? ugcIntroController.onChangeEpisode
           : pgcIntroController.onChangeEpisode,
-      onClose: Get.back,
+      onClose: () => Nav.back(),
       onReverse: () {
-        Get.back();
+        Nav.back();
         onReversePlay(isSeason: season != null);
       },
     );

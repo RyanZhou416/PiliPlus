@@ -15,6 +15,7 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 abstract final class ReplyUtils {
   static void onCheckReply({
@@ -102,7 +103,7 @@ abstract final class ReplyUtils {
         if (isBan)
           TextButton(
             onPressed: () {
-              Get.back();
+              Nav.back();
               String? uri;
               switch (type) {
                 case 1:
@@ -113,7 +114,7 @@ abstract final class ReplyUtils {
               if (uri != null) {
                 Utils.copyText(uri);
               }
-              Get.toNamed(
+              Nav.push(
                 '/webview',
                 parameters: {
                   'url':
@@ -125,7 +126,7 @@ abstract final class ReplyUtils {
           ),
         if (!isManual)
           TextButton(
-            onPressed: Get.back,
+            onPressed: () => Nav.back(),
             child: Text(
               '关闭',
               style: TextStyle(color: Get.theme.colorScheme.outline),

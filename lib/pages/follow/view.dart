@@ -12,6 +12,7 @@ import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show LengthLimitingTextInputFormatter;
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class FollowPage extends StatefulWidget {
   const FollowPage({super.key});
@@ -21,9 +22,9 @@ class FollowPage extends StatefulWidget {
 
   static void toFollowPage({dynamic mid, String? name}) {
     if (mid == null) return;
-    Get.toNamed(
+    Nav.push(
       '/follow',
-      arguments: {
+      extra: {
         'mid': Utils.safeToInt(mid),
         'name': name,
       },
@@ -61,9 +62,9 @@ class _FollowPageState extends State<FollowPage> {
                   tooltip: '新建分组',
                 ),
                 IconButton(
-                  onPressed: () => Get.toNamed(
+                  onPressed: () => Nav.push(
                     '/followSearch',
-                    arguments: {
+                    extra: {
                       'mid': _followController.mid,
                     },
                   ),
@@ -74,7 +75,7 @@ class _FollowPageState extends State<FollowPage> {
                   icon: const Icon(Icons.more_vert),
                   itemBuilder: (context) => [
                     PopupMenuItem(
-                      onTap: () => Get.toNamed('/blackListPage'),
+                      onTap: () => Nav.push('/blackListPage'),
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -187,7 +188,7 @@ class _FollowPageState extends State<FollowPage> {
           children: [
             ListTile(
               onTap: () {
-                Get.back();
+                Nav.back();
                 String tagName = item.name!;
                 showConfirmDialog(
                   context: context,
@@ -218,7 +219,7 @@ class _FollowPageState extends State<FollowPage> {
             ),
             ListTile(
               onTap: () {
-                Get.back();
+                Nav.back();
                 showConfirmDialog(
                   context: context,
                   title: const Text('删除分组'),

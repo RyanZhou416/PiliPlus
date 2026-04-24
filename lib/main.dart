@@ -4,13 +4,13 @@ import 'package:PiliPlus/build_config.dart';
 import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/widgets/back_detector.dart';
 import 'package:PiliPlus/common/widgets/custom_toast.dart';
-import 'package:PiliPlus/common/widgets/route_aware_mixin.dart';
 import 'package:PiliPlus/common/widgets/scale_app.dart';
 import 'package:PiliPlus/common/widgets/scroll_behavior.dart';
 import 'package:PiliPlus/http/init.dart';
 import 'package:PiliPlus/models/common/theme/theme_color_type.dart';
 import 'package:PiliPlus/plugin/pl_player/utils/fullscreen.dart';
-import 'package:PiliPlus/router/app_pages.dart';
+import 'package:PiliPlus/router/app_router.dart';
+import 'package:PiliPlus/utils/nav.dart';
 import 'package:PiliPlus/services/account_service.dart';
 import 'package:PiliPlus/services/download/download_service.dart';
 import 'package:PiliPlus/services/service_locator.dart';
@@ -235,17 +235,16 @@ class MyApp extends StatelessWidget {
       return;
     }
 
-    final route = Get.routing.route;
-    if (route is GetPageRoute) {
-      if (route.popDisposition == .doNotPop) {
+    final navigator = Nav.navigatorKey.currentState;
+    if (navigator != null) {
+      final route = ModalRoute.of(navigator.context);
+      if (route != null && route.popDisposition == .doNotPop) {
         route.onPopInvokedWithResult(false, null);
         return;
       }
-    }
-
-    final navigator = Get.key.currentState;
-    if (navigator?.canPop() ?? false) {
-      navigator!.pop();
+      if (navigator.canPop()) {
+        navigator.pop();
+      }
     }
   }
 
@@ -273,7 +272,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (light, dark) = getAllTheme();
-    return GetMaterialApp(
+    return MaterialApp.router(
       title: Constants.appName,
       theme: light,
       darkTheme: dark,
@@ -284,20 +283,13 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
       ],
       locale: const Locale("zh", "CN"),
-      fallbackLocale: const Locale("zh", "CN"),
       supportedLocales: const [Locale("zh", "CN"), Locale("en", "US")],
-      initialRoute: '/',
-      getPages: Routes.getPages,
-      defaultTransition: Pref.pageTransition,
+      routerConfig: createRouter(),
       builder: FlutterSmartDialog.init(
         toastBuilder: (msg) => CustomToast(msg: msg),
         loadingBuilder: (msg) => LoadingWidget(msg: msg),
         builder: _builder,
       ),
-      navigatorObservers: [
-        routeObserver,
-        FlutterSmartDialog.observer,
-      ],
       scrollBehavior: PlatformUtils.isDesktop
           ? const CustomScrollBehavior(desktopDragDevices)
           : null,

@@ -4,6 +4,8 @@ import 'package:PiliPlus/utils/extension/get_ext.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class FollowedPage extends StatefulWidget {
   const FollowedPage({super.key});
@@ -13,9 +15,9 @@ class FollowedPage extends StatefulWidget {
 
   static void toFollowedPage({dynamic mid, String? name}) {
     if (mid == null) return;
-    Get.toNamed(
+    Nav.push(
       '/followed',
-      arguments: {
+      extra: {
         'mid': Utils.safeToInt(mid),
         'name': name,
       },
@@ -27,7 +29,7 @@ class _FollowedPageState extends FollowTypePageState<FollowedPage> {
   @override
   final controller = Get.putOrFind(
     FollowedController.new,
-    tag: Get.arguments?['mid']?.toString() ?? Utils.generateRandomString(8),
+    tag: Nav.arguments?['mid']?.toString() ?? Utils.generateRandomString(8),
   );
 
   @override

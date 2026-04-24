@@ -26,6 +26,7 @@ import 'package:flutter/material.dart' hide ListTile;
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key, this.showAppBar = true});
@@ -70,7 +71,7 @@ class _AboutPageState extends State<AboutPage> {
       content: TextField(
         autofocus: true,
         onSubmitted: (value) {
-          Get.back();
+          Nav.back();
           if (value.isNotEmpty) {
             PageUtils.handleWebview(value, inApp: true);
           }
@@ -198,7 +199,7 @@ Commit Hash: ${BuildConfig.commitHash}''',
             ),
           ),
           ListTile(
-            onTap: () => Get.toNamed('/logs'),
+            onTap: () => Nav.push('/logs'),
             onLongPress: LoggerUtils.clearLogs,
             onSecondaryTap: PlatformUtils.isMobile
                 ? null
@@ -286,7 +287,7 @@ Commit Hash: ${BuildConfig.commitHash}''',
                     ListTile(
                       dense: true,
                       onTap: () async {
-                        Get.back();
+                        Nav.back();
                         await Future.wait([
                           GStorage.setting.clear(),
                           GStorage.video.clear(),
@@ -298,7 +299,7 @@ Commit Hash: ${BuildConfig.commitHash}''',
                     ListTile(
                       dense: true,
                       onTap: () async {
-                        Get.back();
+                        Nav.back();
                         await GStorage.clear();
                         SmartDialog.showToast('重置成功');
                       },
