@@ -46,13 +46,6 @@ import 'package:PiliPlus/utils/nav.dart';
 List<SettingsModel> get styleSettings => [
   if (PlatformUtils.isDesktop) ...[
     const SwitchModel(
-      title: '显示窗口标题栏',
-      leading: Icon(Icons.window),
-      setKey: SettingBoxKey.showWindowTitleBar,
-      defaultVal: true,
-      needReboot: true,
-    ),
-    const SwitchModel(
       title: '显示托盘图标',
       leading: Icon(Icons.donut_large_rounded),
       setKey: SettingBoxKey.showTrayIcon,
@@ -891,7 +884,7 @@ Future<void> _showThemeTypeDialog(
       Get.find<MineController>().themeType.value = res;
     } catch (_) {}
     GStorage.setting.put(SettingBoxKey.themeMode, res.index);
-    Get.changeThemeMode(res.toThemeMode);
+    MyApp.rebuildTheme();
     setState();
   }
 }

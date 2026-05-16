@@ -58,6 +58,7 @@ import 'package:PiliPlus/utils/image_utils.dart';
 import 'package:PiliPlus/utils/mobile_observer.dart';
 import 'package:PiliPlus/utils/num_utils.dart';
 import 'package:PiliPlus/utils/page_utils.dart';
+import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:PiliPlus/utils/storage.dart';
 import 'package:PiliPlus/utils/storage_key.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
@@ -112,6 +113,15 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
 
   bool get pipNoDanmaku =>
       videoDetailController.plPlayerController.pipNoDanmaku;
+
+  double get _videoRatio {
+    final w = plPlayerController?.width;
+    final h = plPlayerController?.height;
+    if (w != null && h != null && h > 0 && w > 0) {
+      return w / h;
+    }
+    return Style.aspectRatio16x9;
+  }
 
   bool isShowing = true;
 
@@ -845,7 +855,11 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
 
   Widget childSplit(double ratio) {
     final double videoHeight = maxHeight - padding.vertical;
-    final double width = videoHeight * ratio;
+    double width = videoHeight * ratio;
+    const minIntroWidth = 280.0;
+    if (maxWidth - width - padding.horizontal < minIntroWidth) {
+      width = maxWidth - padding.horizontal - minIntroWidth;
+    }
     final videoWidth = isFullScreen ? maxWidth : width;
     final introWidth = maxWidth - width - padding.horizontal;
     return Row(
@@ -871,6 +885,12 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
               body: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (PlatformUtils.isDesktop &&
+                      videoDetailController.isPlayAll)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
+                      child: playlistIndicator(compact: true),
+                    ),
                   buildTabBar(),
                   Expanded(
                     child: tabBarView(
@@ -879,6 +899,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                         videoIntro(
                           width: introWidth,
                           height: maxHeight,
+                          showPlayAll: !PlatformUtils.isDesktop,
                         ),
                         if (videoDetailController.showReply) videoReplyPanel(),
                         if (_shouldShowSeasonPanel) seasonPanel,
@@ -902,7 +923,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
         enableVerticalExpand &&
         !isPortrait) {
       final double videoHeight = maxHeight - padding.vertical;
-      final double width = videoHeight / Style.aspectRatio16x9;
+      final double width = videoHeight * _videoRatio;
       final videoWidth = isFullScreen ? maxWidth : width;
       final introWidth = (maxWidth - padding.horizontal - width) / 2;
       final introHeight = maxHeight - padding.top;
@@ -917,6 +938,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
               child: videoIntro(
                 width: introWidth,
                 height: introHeight,
+                showPlayAll: !PlatformUtils.isDesktop,
               ),
             ),
           ),
@@ -939,6 +961,12 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                 backgroundColor: Colors.transparent,
                 body: Column(
                   children: [
+                    if (PlatformUtils.isDesktop &&
+                        videoDetailController.isPlayAll)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
+                        child: playlistIndicator(compact: true),
+                      ),
                     buildTabBar(showIntro: false),
                     Expanded(
                       child: tabBarView(
@@ -964,12 +992,13 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
       width = maxWidth - clampDouble(maxWidth - width, 280, 425);
     }
     final videoWidth = isFullScreen ? maxWidth : width;
-    final double height = width / Style.aspectRatio16x9;
+    final ratio = _videoRatio;
+    final double height = width / ratio;
     final videoHeight = isFullScreen
         ? maxHeight - (isPortrait ? padding.top : 0)
         : height;
-    if (height > maxHeight) {
-      return childSplit(Style.aspectRatio16x9);
+    if (height > maxHeight - padding.top) {
+      return childSplit(ratio);
     }
     final introHeight = maxHeight - height - padding.top;
     final showIntro =
@@ -999,6 +1028,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                     height: introHeight,
                     needRelated: false,
                     needCtr: false,
+                    showPlayAll: !PlatformUtils.isDesktop,
                   ),
                 ),
               ),
@@ -1016,6 +1046,12 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
               body: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (PlatformUtils.isDesktop &&
+                      videoDetailController.isPlayAll)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
+                      child: playlistIndicator(compact: true),
+                    ),
                   buildTabBar(
                     introText: '相关视频',
                     showIntro: videoDetailController.isFileSource
@@ -1081,7 +1117,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
       if (videoDetailController.isVertical.value &&
           enableVerticalExpand &&
           !isPortrait) {
-        return childSplit(9 / 16);
+        return childSplit(_videoRatio);
       }
       final shouldShowSeasonPanel = _shouldShowSeasonPanel;
       final double height = maxHeight / 2.5;
@@ -1341,37 +1377,44 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
 
   @override
   Widget build(BuildContext context) {
-    Widget child;
-    if (videoDetailController.plPlayerController.isPipMode) {
-      child = plPlayer(width: maxWidth, height: maxHeight, isPipMode: true);
-    } else if (!videoDetailController.horizontalScreen) {
-      child = childWhenDisabled;
-    } else if (maxWidth / maxHeight >= kScreenRatio) {
-      child = childWhenDisabledLandscape;
-    } else if (maxWidth / Style.aspectRatio16x9 < 0.4 * maxHeight) {
-      child = childWhenDisabled;
-    } else {
-      child = childWhenDisabledAlmostSquare;
-    }
-    if (videoDetailController.plPlayerController.keyboardControl) {
-      child = PlayerFocus(
-        plPlayerController: videoDetailController.plPlayerController,
-        introController: introController,
-        onSendDanmaku: videoDetailController.showShootDanmakuSheet,
-        canPlay: () {
-          if (videoDetailController.autoPlay) {
-            return true;
-          }
-          handlePlay();
-          return false;
-        },
-        onSkipSegment: videoDetailController.onSkipSegment,
-        child: child,
-      );
-    }
-    return videoDetailController.plPlayerController.darkVideoPage
-        ? Theme(data: themeData, child: child)
-        : child;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.hasBoundedWidth) maxWidth = constraints.maxWidth;
+        if (constraints.hasBoundedHeight) maxHeight = constraints.maxHeight;
+
+        Widget child;
+        if (videoDetailController.plPlayerController.isPipMode) {
+          child = plPlayer(width: maxWidth, height: maxHeight, isPipMode: true);
+        } else if (!videoDetailController.horizontalScreen) {
+          child = childWhenDisabled;
+        } else if (maxWidth / maxHeight >= kScreenRatio) {
+          child = childWhenDisabledLandscape;
+        } else if (maxWidth / Style.aspectRatio16x9 < 0.4 * maxHeight) {
+          child = childWhenDisabled;
+        } else {
+          child = childWhenDisabledAlmostSquare;
+        }
+        if (videoDetailController.plPlayerController.keyboardControl) {
+          child = PlayerFocus(
+            plPlayerController: videoDetailController.plPlayerController,
+            introController: introController,
+            onSendDanmaku: videoDetailController.showShootDanmakuSheet,
+            canPlay: () {
+              if (videoDetailController.autoPlay) {
+                return true;
+              }
+              handlePlay();
+              return false;
+            },
+            onSkipSegment: videoDetailController.onSkipSegment,
+            child: child,
+          );
+        }
+        return videoDetailController.plPlayerController.darkVideoPage
+            ? Theme(data: themeData, child: child)
+            : child;
+      },
+    );
   }
 
   Widget buildTabBar({
@@ -1716,6 +1759,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     bool needRelated = true,
     bool needCtr = true,
     bool isNested = false,
+    bool showPlayAll = true,
   }) {
     if (videoDetailController.isFileSource) {
       return localIntroPanel(needCtr: needCtr);
@@ -1790,7 +1834,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
       return KeepAliveWrapper(child: child);
     }
 
-    if (videoDetailController.isPlayAll) {
+    if (videoDetailController.isPlayAll && showPlayAll) {
       return Stack(
         clipBehavior: Clip.none,
         children: [
@@ -1799,44 +1843,51 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
             left: 12,
             right: 12,
             bottom: 12 + padding.bottom,
-            child: Material(
-              type: MaterialType.transparency,
-              child: InkWell(
-                onTap: () => videoDetailController.showMediaListPanel(context),
-                borderRadius: const BorderRadius.all(Radius.circular(14)),
-                child: Container(
-                  height: 54,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: themeData.colorScheme.secondaryContainer.withValues(
-                      alpha: 0.95,
-                    ),
-                    borderRadius: const BorderRadius.all(Radius.circular(14)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.playlist_play, size: 24),
-                      const SizedBox(width: 10),
-                      Text(
-                        videoDetailController.watchLaterTitle,
-                        style: TextStyle(
-                          color: themeData.colorScheme.onSecondaryContainer,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.2,
-                        ),
-                      ),
-                      const Spacer(),
-                      const Icon(Icons.keyboard_arrow_up_rounded, size: 26),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            child: playlistIndicator(),
           ),
         ],
       );
     }
     return introPanel();
+  }
+
+  Widget playlistIndicator({bool compact = false}) {
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: () => videoDetailController.showMediaListPanel(context),
+        borderRadius: BorderRadius.all(Radius.circular(compact ? 8 : 14)),
+        child: Container(
+          height: compact ? 40 : 54,
+          padding: EdgeInsets.symmetric(horizontal: compact ? 10 : 16),
+          decoration: BoxDecoration(
+            color: themeData.colorScheme.secondaryContainer.withValues(
+              alpha: 0.95,
+            ),
+            borderRadius: BorderRadius.all(Radius.circular(compact ? 8 : 14)),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.playlist_play, size: compact ? 20 : 24),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  videoDetailController.watchLaterTitle,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: themeData.colorScheme.onSecondaryContainer,
+                    fontWeight: FontWeight.bold,
+                    fontSize: compact ? 12 : null,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ),
+              Icon(Icons.keyboard_arrow_up_rounded, size: compact ? 20 : 26),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget get seasonPanel {

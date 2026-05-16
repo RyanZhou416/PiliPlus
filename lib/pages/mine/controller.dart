@@ -1,3 +1,4 @@
+import 'package:PiliPlus/main.dart';
 import 'package:PiliPlus/http/fav.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/http/user.dart';
@@ -267,7 +268,7 @@ class MineController extends CommonDataController<FavFolderData, FavFolderData>
     final newVal = nextThemeType;
     themeType.value = newVal;
     GStorage.setting.put(SettingBoxKey.themeMode, newVal.index);
-    Get.changeThemeMode(newVal.toThemeMode);
+    MyApp.rebuildTheme();
   }
 
   void push(String name) {

@@ -77,4 +77,5 @@ abstract final class AppRoutes {
   static const ssWeb = '/ssWeb';
   static const memberGuard = '/memberGuard';
   static const bubble = '/bubble';
+  static const mine = '/mine';
 }

@@ -11,6 +11,7 @@ import 'package:PiliPlus/models/common/theme/theme_color_type.dart';
 import 'package:PiliPlus/plugin/pl_player/utils/fullscreen.dart';
 import 'package:PiliPlus/router/app_router.dart';
 import 'package:PiliPlus/utils/nav.dart';
+import 'package:go_router/go_router.dart';
 import 'package:PiliPlus/services/account_service.dart';
 import 'package:PiliPlus/services/download/download_service.dart';
 import 'package:PiliPlus/services/service_locator.dart';
@@ -162,9 +163,7 @@ void main() async {
     final windowOptions = WindowOptions(
       minimumSize: const Size(400, 720),
       skipTaskbar: false,
-      titleBarStyle: Pref.showWindowTitleBar
-          ? TitleBarStyle.normal
-          : TitleBarStyle.hidden,
+      titleBarStyle: TitleBarStyle.hidden,
       title: Constants.appName,
     );
     windowManager.waitUntilReadyToShow(windowOptions, () async {
@@ -222,30 +221,17 @@ void main() async {
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   static ColorScheme? _light, _dark;
 
   static ThemeData? darkThemeData;
 
-  static void _onBack() {
-    if (SmartDialog.checkExist()) {
-      SmartDialog.dismiss();
-      return;
-    }
+  static _MyAppState? _instance;
 
-    final navigator = Nav.navigatorKey.currentState;
-    if (navigator != null) {
-      final route = ModalRoute.of(navigator.context);
-      if (route != null && route.popDisposition == .doNotPop) {
-        route.onPopInvokedWithResult(false, null);
-        return;
-      }
-      if (navigator.canPop()) {
-        navigator.pop();
-      }
-    }
+  static void rebuildTheme() {
+    _instance?._rebuildTheme();
   }
 
   static (ThemeData, ThemeData) getAllTheme() {
@@ -270,30 +256,25 @@ class MyApp extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final (light, dark) = getAllTheme();
-    return MaterialApp.router(
-      title: Constants.appName,
-      theme: light,
-      darkTheme: dark,
-      themeMode: Pref.themeMode,
-      localizationsDelegates: const [
-        GlobalCupertinoLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
-      locale: const Locale("zh", "CN"),
-      supportedLocales: const [Locale("zh", "CN"), Locale("en", "US")],
-      routerConfig: createRouter(),
-      builder: FlutterSmartDialog.init(
-        toastBuilder: (msg) => CustomToast(msg: msg),
-        loadingBuilder: (msg) => LoadingWidget(msg: msg),
-        builder: _builder,
-      ),
-      scrollBehavior: PlatformUtils.isDesktop
-          ? const CustomScrollBehavior(desktopDragDevices)
-          : null,
-    );
+  State<MyApp> createState() => _MyAppState();
+
+  static void _onBack() {
+    if (SmartDialog.checkExist()) {
+      SmartDialog.dismiss();
+      return;
+    }
+
+    final navigator = Nav.navigatorKey.currentState;
+    if (navigator != null) {
+      final route = ModalRoute.of(navigator.context);
+      if (route != null && route.popDisposition == .doNotPop) {
+        route.onPopInvokedWithResult(false, null);
+        return;
+      }
+      if (navigator.canPop()) {
+        navigator.pop();
+      }
+    }
   }
 
   static Widget _builder(BuildContext context, Widget? child) {
@@ -330,7 +311,6 @@ class MyApp extends StatelessWidget {
   /// from [DynamicColorBuilderState.initPlatformState]
   static Future<bool> initPlatformState() async {
     if (_light != null || _dark != null) return true;
-    // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       final corePalette = await DynamicColorPlugin.getCorePalette();
 
@@ -370,6 +350,54 @@ class MyApp extends StatelessWidget {
     }
     GStorage.setting.put(SettingBoxKey.dynamicColor, false);
     return false;
+  }
+}
+
+class _MyAppState extends State<MyApp> {
+  late final GoRouter _router = createRouter();
+
+  @override
+  void initState() {
+    super.initState();
+    MyApp._instance = this;
+  }
+
+  @override
+  void dispose() {
+    MyApp._instance = null;
+    _router.dispose();
+    super.dispose();
+  }
+
+  void _rebuildTheme() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final (light, dark) = MyApp.getAllTheme();
+    return MaterialApp.router(
+      title: Constants.appName,
+      theme: light,
+      darkTheme: dark,
+      themeMode: Pref.themeMode,
+      localizationsDelegates: const [
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      locale: const Locale("zh", "CN"),
+      supportedLocales: const [Locale("zh", "CN"), Locale("en", "US")],
+      routerConfig: _router,
+      builder: FlutterSmartDialog.init(
+        toastBuilder: (msg) => CustomToast(msg: msg),
+        loadingBuilder: (msg) => LoadingWidget(msg: msg),
+        builder: MyApp._builder,
+      ),
+      scrollBehavior: PlatformUtils.isDesktop
+          ? const CustomScrollBehavior(desktopDragDevices)
+          : null,
+    );
   }
 }
 
