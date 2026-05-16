@@ -175,15 +175,16 @@ class _PgcReviewChildPageState extends State<PgcReviewChildPage>
                 '举报',
                 style: TextStyle(fontSize: 14),
               ),
-              onTap: () => Get
-                ..back()
-                ..toNamed(
+              onTap: () {
+                Nav.back();
+                Nav.push(
                   '/webview',
                   parameters: {
                     'url':
                         'https://www.bilibili.com/appeal/?reviewId=${item.reviewId}&type=shortComment&mediaId=${widget.mediaId}',
                   },
-                ),
+                );
+              },
             ),
           ],
         ),

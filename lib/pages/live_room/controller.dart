@@ -258,9 +258,8 @@ class LiveRoomController extends GetxController {
               if (plPlayerController.isDesktopPip) {
                 plPlayerController.exitDesktopPip();
               }
-              Get
-                ..back()
-                ..back();
+              Nav.back();
+              Nav.back();
             },
             child: const Text('退出'),
           ),

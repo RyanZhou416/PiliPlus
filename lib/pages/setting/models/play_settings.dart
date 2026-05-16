@@ -151,7 +151,7 @@ List<SettingsModel> get playSettings => [
     title: '全屏 SC 大小',
     subtitle: 'SuperChat (醒目留言) 大小设置',
     leading: const Icon(Icons.open_in_full),
-    onTap: (_, _) => Get.to(const FullScreenScSize()),
+    onTap: (_, _) => Nav.pushRoute(MaterialPageRoute(builder: (_) => const FullScreenScSize())),
   ),
   const SwitchModel(
     title: '竖屏扩大展示',

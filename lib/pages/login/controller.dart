@@ -492,9 +492,8 @@ class LoginPageController extends GetxController
                     data['token_info'],
                     data['cookie_info']['cookies'],
                   );
-                  Get
-                    ..back()
-                    ..back();
+                  Nav.back();
+                  Nav.back();
                 },
                 child: const Text("确认"),
               ),

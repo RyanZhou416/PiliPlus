@@ -6,6 +6,7 @@ import 'package:PiliPlus/utils/extension/num_ext.dart';
 import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/nav.dart';
 
 mixin HeaderMixin<T extends StatefulWidget> on State<T> {
   PlPlayerController get plPlayerController;
@@ -179,12 +180,13 @@ mixin HeaderMixin<T extends StatefulWidget> on State<T> {
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          onPressed: () => Get
-                            ..back()
-                            ..toNamed(
+                          onPressed: () {
+                            Nav.back();
+                            Nav.push(
                               '/danmakuBlock',
-                              arguments: plPlayerController,
-                            ),
+                              extra: plPlayerController,
+                            );
+                          },
                           child: Text(
                             "屏蔽管理(${plPlayerController.filters.count})",
                           ),

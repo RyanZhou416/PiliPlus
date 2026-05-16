@@ -150,3 +150,7 @@ test*
 
 # Local architecture docs
 docs/
+
+# Portable builds
+PiliPlus_Portable/
+PiliPlus_Portable.zip

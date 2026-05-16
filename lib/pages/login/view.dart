@@ -294,9 +294,9 @@ class _LoginPageState extends State<LoginPage> {
                           'https://passport.bilibili.com/h5-app/passport/login/findPassword',
                         ),
                         dense: false,
-                        onTap: () => Get
-                          ..back()
-                          ..toNamed(
+                        onTap: () {
+                          Nav.back();
+                          Nav.push(
                             '/webview',
                             parameters: {
                               'url':
@@ -304,7 +304,8 @@ class _LoginPageState extends State<LoginPage> {
                               'type': 'url',
                               'pageTitle': '忘记密码',
                             },
-                          ),
+                          );
+                        },
                       ),
                       ListTile(
                         title: const Text(
@@ -315,9 +316,9 @@ class _LoginPageState extends State<LoginPage> {
                           'https://passport.bilibili.com/pc/passport/findPassword',
                         ),
                         dense: false,
-                        onTap: () => Get
-                          ..back()
-                          ..toNamed(
+                        onTap: () {
+                          Nav.back();
+                          Nav.push(
                             '/webview',
                             parameters: {
                               'url':
@@ -326,7 +327,8 @@ class _LoginPageState extends State<LoginPage> {
                               'pageTitle': '忘记密码',
                               'uaType': 'pc',
                             },
-                          ),
+                          );
+                        },
                       ),
                     ],
                   ),
