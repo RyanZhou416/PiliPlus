@@ -18,9 +18,10 @@ import 'package:PiliPlus/services/service_locator.dart';
 import 'package:PiliPlus/utils/cache_manager.dart';
 import 'package:PiliPlus/utils/calc_window_position.dart';
 import 'package:PiliPlus/utils/date_utils.dart';
-import 'package:PiliPlus/utils/extension/iterable_ext.dart';
+import 'package:PiliPlus/utils/device_utils.dart';
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:PiliPlus/utils/json_file_handler.dart';
+import 'package:PiliPlus/utils/max_screen_size.dart';
 import 'package:PiliPlus/utils/path_utils.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:PiliPlus/utils/request_utils.dart';
@@ -30,6 +31,7 @@ import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:PiliPlus/utils/theme_utils.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:catcher_2/catcher_2.dart';
+import 'package:collection/collection.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/foundation.dart';
@@ -43,9 +45,12 @@ import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:screen_brightness_platform_interface/screen_brightness_platform_interface.dart';
 import 'package:window_manager/window_manager.dart' hide calcWindowPosition;
 
 WebViewEnvironment? webViewEnvironment;
+
+EdgeInsets? tmpPadding;
 
 Future<void> _initDownPath() async {
   if (PlatformUtils.isDesktop) {
@@ -86,7 +91,7 @@ Future<void> _initAppPath() async {
 }
 
 Future<void> _initSdkInt() async {
-  Utils.sdkInt = (await DeviceInfoPlugin().androidInfo).version.sdkInt;
+  DeviceUtils.sdkInt = (await DeviceInfoPlugin().androidInfo).version.sdkInt;
 }
 
 void main() async {
@@ -111,7 +116,7 @@ void main() async {
 
   if (PlatformUtils.isMobile) {
     await Future.wait([
-      if (Platform.isAndroid) _initSdkInt(),
+      if (Platform.isAndroid) ...[_initSdkInt(), MaxScreenSize.init()],
       if (Pref.horizontalScreen) ?fullMode() else ?portraitUpMode(),
       setupServiceLocator(),
     ]);
@@ -156,6 +161,8 @@ void main() async {
         }
         FlutterDisplayMode.setPreferredMode(displayMode ?? DisplayMode.auto);
       });
+    } else {
+      ScreenBrightnessPlatform.instance.setAutoReset(false);
     }
   } else if (PlatformUtils.isDesktop) {
     await windowManager.ensureInitialized();
@@ -184,9 +191,13 @@ void main() async {
   if (Pref.enableLog) {
     // 异常捕获 logo记录
     final customParameters = {
-      'BuildConfig':
-          '\nBuild Time: ${DateFormatUtils.format(BuildConfig.buildTime, format: DateFormatUtils.longFormatDs)}\n'
-          'Commit Hash: ${BuildConfig.commitHash}',
+      'Build Time': DateFormatUtils.format(
+        BuildConfig.buildTime,
+        format: DateFormatUtils.longFormatDs,
+      ),
+      'Commit Hash': BuildConfig.commitHash,
+      'MPV Api Version':
+          '${NativePlayer.apiVersion >> 16}.${NativePlayer.apiVersion & 0xFFFF}',
     };
     final fileHandler = await JsonFileHandler.init();
     final Catcher2Options debugConfig = Catcher2Options(
@@ -239,13 +250,13 @@ class MyApp extends StatefulWidget {
     late final brandColor = colorThemeTypes[Pref.customColor].color;
     late final variant = Pref.schemeVariant;
     return (
-      ThemeUtils.getThemeData(
+      ThemeUtils.lightTheme = ThemeUtils.getThemeData(
         colorScheme: dynamicColor
             ? _light!
             : brandColor.asColorSchemeSeed(variant, .light),
         isDynamic: dynamicColor,
       ),
-      ThemeUtils.getThemeData(
+      ThemeUtils.darkTheme = ThemeUtils.getThemeData(
         isDark: true,
         colorScheme: dynamicColor
             ? _dark!
@@ -286,16 +297,20 @@ class MyApp extends StatefulWidget {
         data: mediaQuery.copyWith(
           textScaler: textScaler,
           size: mediaQuery.size / uiScale,
-          padding: mediaQuery.padding / uiScale,
+          padding: tmpPadding ?? mediaQuery.padding / uiScale,
           viewInsets: mediaQuery.viewInsets / uiScale,
-          viewPadding: mediaQuery.viewPadding / uiScale,
+          viewPadding: tmpPadding ?? mediaQuery.viewPadding / uiScale,
           devicePixelRatio: mediaQuery.devicePixelRatio * uiScale,
         ),
         child: child!,
       );
     } else {
       child = MediaQuery(
-        data: mediaQuery.copyWith(textScaler: textScaler),
+        data: mediaQuery.copyWith(
+          textScaler: textScaler,
+          padding: tmpPadding,
+          viewPadding: tmpPadding,
+        ),
         child: child!,
       );
     }

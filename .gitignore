@@ -146,7 +146,7 @@ pili_release.json
 
 dist
 
-test*.dart
+test*
 
 # Local architecture docs
 docs/

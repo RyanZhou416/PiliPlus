@@ -10,11 +10,23 @@ $ToolTipFix = "56956c33ef102ac0b5fc46b62bd2dd9f50a86616";
 # https://github.com/flutter/flutter/issues/182281
 $NewOverScrollIndicator = "362b1de29974ffc1ed6faa826e1df870d7bec75f";
 
-$BottomSheetPatch = "lib/scripts/bottom_sheet.patch"
+$BottomSheetAndroidPatch = "lib/scripts/bottom_sheet_android.patch"
 
+# https://github.com/bggRGjQaUbCoE/PiliPlus/issues/1906
+$BottomSheetIOSFlutterPatch = "lib/scripts/bottom_sheet_ios_flutter.patch"
+$BottomSheetIOSPiliPlusPatch = "lib/scripts/bottom_sheet_ios_piliplus.patch"
+
+# https://github.com/bggRGjQaUbCoE/PiliPlus/issues/1662
 $ScrollViewPatch = "lib/scripts/scroll_view.patch"
 
+# https://github.com/bggRGjQaUbCoE/PiliPlus/issues/2106
 $TextSelectionPatch = "lib/scripts/text_selection.patch"
+
+# https://github.com/bggRGjQaUbCoE/PiliPlus/issues/1947
+$NavigatorPatch = "lib/scripts/navigator.patch"
+
+# https://github.com/bggRGjQaUbCoE/PiliPlus/issues/2107
+$ImageAnimPatch = "lib/scripts/image_anim.patch"
 
 # TODO: remove
 # https://github.com/flutter/flutter/issues/90223
@@ -24,20 +36,31 @@ $ModalBarrierPatch = "lib/scripts/modal_barrier.patch"
 # https://github.com/flutter/flutter/issues/182466
 $MouseCursorPatch = "lib/scripts/mouse_cursor.patch"
 
+if ($platform.ToLower() -eq "ios") {
+    git apply $BottomSheetIOSPiliPlusPatch
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "$BottomSheetIOSPiliPlusPatch applied"
+    }
+}
+
 Set-Location $env:FLUTTER_ROOT
 
 $picks   = @()
 $reverts = @()
-$patches = @($ModalBarrierPatch, $TextSelectionPatch, $MouseCursorPatch)
+$patches = @($ModalBarrierPatch, $TextSelectionPatch, $MouseCursorPatch,
+            $ImageAnimPatch)
 
 switch ($platform.ToLower()) {
     "android" {
         $reverts += $NewOverScrollIndicator
-        $patches += $BottomSheetPatch
+        $patches += $BottomSheetAndroidPatch
         $patches += $ScrollViewPatch
+        $patches += $NavigatorPatch
     }
     "ios" {
         $patches += $ScrollViewPatch
+        $patches += $BottomSheetIOSFlutterPatch
+        $patches += $NavigatorPatch
     }
     "linux" {
         $picks += $ToolTipFix

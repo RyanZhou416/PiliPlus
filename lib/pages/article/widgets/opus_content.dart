@@ -32,11 +32,13 @@ import 'package:PiliPlus/utils/nav.dart';
 
 class OpusContent extends StatelessWidget {
   final List<ArticleContentModel> opus;
+  final ValueGetter<List<SourceModel>> images;
   final double maxWidth;
 
   const OpusContent({
     super.key,
     required this.opus,
+    required this.images,
     required this.maxWidth,
   });
 
@@ -100,7 +102,7 @@ class OpusContent extends StatelessWidget {
             ),
             alignment: Alignment.centerLeft,
             placeholderBuilder: (_) => Text(latex),
-            errorWidget: Text(latex),
+            errorBuilder: (_) => Text(latex),
           ),
         );
       default:
@@ -239,9 +241,11 @@ class OpusContent extends StatelessWidget {
                     child: child,
                   );
                 }
+                final images = this.images();
                 return GestureDetector(
                   onTap: () => PageUtils.imageView(
-                    imgList: [SourceModel(url: pic.url!)],
+                    imgList: images,
+                    initialPage: images.indexWhere((e) => e.url == pic.url),
                     quality: 60,
                   ),
                   child: child,
@@ -628,7 +632,7 @@ class OpusContent extends StatelessWidget {
               );
             case 7 when (element.code != null):
               final renderer = TextSpanRenderer(
-                const TextStyle(),
+                null,
                 isDarkMode ? githubDarkTheme : githubTheme,
               );
               highlight
@@ -712,7 +716,7 @@ Widget moduleBlockedItem(
   ThemeData theme,
   ModuleBlocked moduleBlocked,
 ) {
-  late final isDarkMode = theme.brightness.isDark;
+  late final isDarkMode = theme.isDark;
 
   BoxDecoration? bgImg(double width) {
     return moduleBlocked.bgImg == null

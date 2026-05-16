@@ -34,7 +34,7 @@ class VideoReplyReplyController extends ReplyController
   int replyType;
 
   bool hasRoot = false;
-  final Rx<ReplyInfo?> firstFloor = Rx(null);
+  final firstFloor = Rxn<ReplyInfo>();
 
   final index = RxnInt();
 
@@ -54,7 +54,7 @@ class VideoReplyReplyController extends ReplyController
   @override
   void onInit() {
     super.onInit();
-    mode.value = Mode.MAIN_LIST_TIME;
+    mode = Mode.MAIN_LIST_TIME;
     queryData();
   }
 
@@ -133,18 +133,9 @@ class VideoReplyReplyController extends ReplyController
           oid: oid,
           root: rpid,
           rpid: id ?? 0,
-          mode: mode.value,
+          mode: mode,
           offset: paginationReply?.nextOffset,
         );
-
-  @override
-  void queryBySort() {
-    if (isLoading) return;
-    mode.value = mode.value == Mode.MAIN_LIST_HOT
-        ? Mode.MAIN_LIST_TIME
-        : Mode.MAIN_LIST_HOT;
-    onReload();
-  }
 
   @override
   Future<void> onReload() {

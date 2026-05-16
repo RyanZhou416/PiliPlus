@@ -19,13 +19,13 @@ class DynTopicController
 
   int sortBy = 0;
   String offset = '';
-  Rx<TopicSortByConf?> topicSortByConf = Rx<TopicSortByConf?>(null);
+  final topicSortByConf = Rxn<TopicSortByConf>();
 
   double? appbarOffset;
 
   // top
-  Rx<bool?> isFav = Rx<bool?>(null);
-  Rx<bool?> isLike = Rx<bool?>(null);
+  final isFav = false.obs;
+  final isLike = false.obs;
   Rx<LoadingState<TopDetails?>> topState =
       LoadingState<TopDetails?>.loading().obs;
 
@@ -43,8 +43,8 @@ class DynTopicController
     if (topState.value case Success(:final response)) {
       final topicItem = response!.topicItem!;
       topicName = topicItem.name;
-      isFav.value = topicItem.isFav;
-      isLike.value = topicItem.isLike;
+      isFav.value = topicItem.isFav ?? false;
+      isLike.value = topicItem.isLike ?? false;
     }
   }
 
@@ -97,7 +97,7 @@ class DynTopicController
       SmartDialog.showToast('账号未登录');
       return;
     }
-    bool isFav = this.isFav.value ?? false;
+    final isFav = this.isFav.value;
     final res = isFav
         ? await FavHttp.delFavTopic(topicId)
         : await FavHttp.addFavTopic(topicId);
@@ -118,7 +118,7 @@ class DynTopicController
       SmartDialog.showToast('账号未登录');
       return;
     }
-    bool isLike = this.isLike.value ?? false;
+    final isLike = this.isLike.value;
     final res = await FavHttp.likeTopic(topicId, isLike);
     if (res.isSuccess) {
       if (isLike) {
