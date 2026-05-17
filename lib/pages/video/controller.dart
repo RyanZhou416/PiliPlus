@@ -13,6 +13,7 @@ import 'package:PiliPlus/http/init.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/http/user.dart';
 import 'package:PiliPlus/http/video.dart';
+import 'package:PiliPlus/services/net_debug_logger.dart';
 import 'package:PiliPlus/models/common/account_type.dart';
 import 'package:PiliPlus/models/common/sponsor_block/action_type.dart';
 import 'package:PiliPlus/models/common/sponsor_block/post_segment_model.dart';
@@ -868,6 +869,15 @@ class VideoDetailController extends GetxController
     if (result case Success(:final response)) {
       data = response;
 
+      netLog.info('VIDEO', 'playUrl resolved', extra: {
+        'bvid': bvid,
+        'cid': cid.value,
+        'dash': data.dash != null,
+        'durl': data.durl != null,
+        'quality': data.quality,
+        'acceptQuality': data.acceptQuality?.toString(),
+      });
+
       languages.value = data.language?.items;
       currLang.value = data.curLanguage;
 
@@ -1008,6 +1018,15 @@ class VideoDetailController extends GetxController
       } else {
         audioUrl = '';
       }
+
+      netLog.info('VIDEO', 'player source ready', extra: {
+        'videoQuality': currentVideoQa.value?.desc,
+        'codec': currentDecodeFormats.name,
+        'videoHost': Uri.tryParse(videoUrl ?? '')?.host,
+        'audioHost': audioUrl?.isNotEmpty == true ? Uri.tryParse(audioUrl!)?.host : null,
+        'bandwidth': firstVideo.bandWidth,
+      });
+
       await _initPlayerIfNeeded(autoFullScreenFlag);
     } else {
       _autoPlay.value = false;

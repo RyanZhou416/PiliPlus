@@ -116,6 +116,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
       videoDetailController.plPlayerController.pipNoDanmaku;
 
   double get _videoRatio {
+    plPlayerController?.dataStatus.value;
     final w = plPlayerController?.width;
     final h = plPlayerController?.height;
     if (w != null && h != null && h > 0 && w > 0) {
@@ -824,15 +825,199 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     },
   );
 
+  static const double _sidePanelColumnMinWidth = 300.0;
+
+  Widget _buildSidePanel({
+    required double panelWidth,
+    required double panelHeight,
+    bool showIntro = true,
+    bool? showReplyOverride,
+    bool relatedOnly = false,
+    String? introText,
+    double? introContentWidth,
+    double? introContentHeight,
+  }) {
+    final showReply = showReplyOverride ?? videoDetailController.showReply;
+    final showSeason = _shouldShowSeasonPanel;
+    final showRelated = showIntro &&
+        videoDetailController.isUgc &&
+        videoDetailController.showRelatedVideo;
+
+    final tabCount =
+        (showIntro ? 1 : 0) + (showReply ? 1 : 0) + (showSeason ? 1 : 0);
+
+    final useExpanded = PlatformUtils.isDesktop &&
+        tabCount >= 2 &&
+        panelWidth >= _sidePanelColumnMinWidth * tabCount;
+
+    if (useExpanded) {
+      return Scaffold(
+        key: videoDetailController.childKey,
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.transparent,
+        body: Column(
+          children: [
+            if (videoDetailController.isPlayAll)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
+                child: playlistIndicator(compact: true),
+              ),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (showIntro)
+                    Expanded(
+                      child: Column(
+                        children: [
+                          _sectionHeader(
+                            videoDetailController.isFileSource
+                                ? '离线视频'
+                                : introText ?? '简介',
+                          ),
+                          Expanded(
+                            child: videoDetailController.isFileSource
+                                ? localIntroPanel(needCtr: false)
+                                : (showRelated && relatedOnly)
+                                    ? KeepAliveWrapper(
+                                        child: CustomScrollView(
+                                          key: const PageStorageKey(
+                                              CommonIntroController),
+                                          controller: videoDetailController
+                                              .effectiveIntroScrollCtr,
+                                          slivers: [
+                                            RelatedVideoPanel(
+                                              key: videoRelatedKey,
+                                              heroTag: heroTag,
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : videoIntro(
+                                        width: panelWidth / tabCount,
+                                        height:
+                                            introContentHeight ?? panelHeight,
+                                        showPlayAll: false,
+                                      ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (showReply)
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Obx(() {
+                            final count = _videoReplyController.count.value;
+                            return _sectionHeader(
+                              '评论${count == -1 ? '' : ' ${NumUtils.numFormat(count)}'}',
+                            );
+                          }),
+                          Expanded(child: videoReplyPanel()),
+                        ],
+                      ),
+                    ),
+                  if (showSeason)
+                    Expanded(
+                      child: Column(
+                        children: [
+                          _sectionHeader('播放列表'),
+                          Expanded(child: seasonPanel),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      key: videoDetailController.childKey,
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.transparent,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (PlatformUtils.isDesktop && videoDetailController.isPlayAll)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
+              child: playlistIndicator(compact: true),
+            ),
+          buildTabBar(
+            showIntro: showIntro,
+            introText: introText,
+            showReply: showReply,
+          ),
+          Expanded(
+            child: tabBarView(
+              controller: videoDetailController.tabCtr,
+              children: [
+                if (showIntro)
+                  videoDetailController.isFileSource
+                      ? localIntroPanel()
+                      : (showRelated && relatedOnly)
+                          ? KeepAliveWrapper(
+                              child: CustomScrollView(
+                                key:
+                                    const PageStorageKey(CommonIntroController),
+                                controller: videoDetailController
+                                    .effectiveIntroScrollCtr,
+                                slivers: [
+                                  RelatedVideoPanel(
+                                    key: videoRelatedKey,
+                                    heroTag: heroTag,
+                                  ),
+                                ],
+                              ),
+                            )
+                          : videoIntro(
+                              width:
+                                  introContentWidth ?? panelWidth,
+                              height: introContentHeight ?? panelHeight,
+                              showPlayAll: !PlatformUtils.isDesktop,
+                            ),
+                if (showReply) videoReplyPanel(),
+                if (showSeason) seasonPanel,
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionHeader(String title) {
+    return Container(
+      height: 45,
+      alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: themeData.dividerColor.withValues(alpha: 0.1),
+          ),
+        ),
+      ),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+      ),
+    );
+  }
+
   Widget childSplit(double ratio) {
     final double videoHeight = maxHeight - padding.vertical;
     double width = videoHeight * ratio;
-    const minIntroWidth = 280.0;
+    const minIntroWidth = 350.0;
     if (maxWidth - width - padding.horizontal < minIntroWidth) {
       width = maxWidth - padding.horizontal - minIntroWidth;
     }
     final videoWidth = isFullScreen ? maxWidth : width;
     final introWidth = maxWidth - width - padding.horizontal;
+    final introHeight = maxHeight - padding.top;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -848,37 +1033,12 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
           offstage: isFullScreen,
           child: SizedBox(
             width: introWidth,
-            height: maxHeight - padding.top,
-            child: Scaffold(
-              key: videoDetailController.childKey,
-              resizeToAvoidBottomInset: false,
-              backgroundColor: Colors.transparent,
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (PlatformUtils.isDesktop &&
-                      videoDetailController.isPlayAll)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
-                      child: playlistIndicator(compact: true),
-                    ),
-                  buildTabBar(),
-                  Expanded(
-                    child: tabBarView(
-                      controller: videoDetailController.tabCtr,
-                      children: [
-                        videoIntro(
-                          width: introWidth,
-                          height: maxHeight,
-                          showPlayAll: !PlatformUtils.isDesktop,
-                        ),
-                        if (videoDetailController.showReply) videoReplyPanel(),
-                        if (_shouldShowSeasonPanel) seasonPanel,
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            height: introHeight,
+            child: _buildSidePanel(
+              panelWidth: introWidth,
+              panelHeight: introHeight,
+              introContentWidth: introWidth,
+              introContentHeight: maxHeight,
             ),
           ),
         ),
@@ -923,31 +1083,10 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                 child: SizedBox(
                   width: introWidth,
                   height: introHeight,
-                  child: Scaffold(
-                    key: videoDetailController.childKey,
-                    resizeToAvoidBottomInset: false,
-                    backgroundColor: Colors.transparent,
-                    body: Column(
-                      children: [
-                        if (PlatformUtils.isDesktop &&
-                            videoDetailController.isPlayAll)
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
-                            child: playlistIndicator(compact: true),
-                          ),
-                        buildTabBar(showIntro: false),
-                        Expanded(
-                          child: tabBarView(
-                            controller: videoDetailController.tabCtr,
-                            children: [
-                              if (videoDetailController.showReply)
-                                videoReplyPanel(),
-                              if (_shouldShowSeasonPanel) seasonPanel,
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                  child: _buildSidePanel(
+                    panelWidth: introWidth,
+                    panelHeight: introHeight,
+                    showIntro: false,
                   ),
                 ),
               ),
@@ -965,7 +1104,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     double width =
         clampDouble(maxHeight / maxWidth * 1.08, 0.5, 0.7) * maxWidth;
     if (maxWidth >= 560) {
-      width = maxWidth - clampDouble(maxWidth - width, 280, 425);
+      width = maxWidth - clampDouble(maxWidth - width, 350, 425);
     }
     final videoWidth = isFullScreen ? maxWidth : width;
     final ratio = _videoRatio;
@@ -979,6 +1118,21 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     final introHeight = maxHeight - height - padding.top;
     final showIntro =
         videoDetailController.isUgc && videoDetailController.showRelatedVideo;
+
+    final sidePanelWidth = maxWidth - width - padding.horizontal;
+    final sidePanelHeight = maxHeight - padding.top;
+    final showRelated =
+        videoDetailController.isFileSource ? true : showIntro;
+    final hasReply = videoDetailController.showReply;
+    final hasSeason = _shouldShowSeasonPanel;
+    final sideTabCount =
+        (showRelated ? 1 : 0) + (hasReply ? 1 : 0) + (hasSeason ? 1 : 0);
+    final wouldExpand = PlatformUtils.isDesktop &&
+        sideTabCount >= 2 &&
+        sidePanelWidth >= _sidePanelColumnMinWidth * sideTabCount;
+    final moveReplyToLeft =
+        PlatformUtils.isDesktop && !wouldExpand && hasReply && !isFullScreen;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -999,13 +1153,18 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                 child: SizedBox(
                   width: width,
                   height: introHeight,
-                  child: videoIntro(
-                    width: width,
-                    height: introHeight,
-                    needRelated: false,
-                    needCtr: false,
-                    showPlayAll: !PlatformUtils.isDesktop,
-                  ),
+                  child: moveReplyToLeft
+                      ? _combinedIntroReply(
+                          width: width,
+                          height: introHeight,
+                        )
+                      : videoIntro(
+                          width: width,
+                          height: introHeight,
+                          needRelated: false,
+                          needCtr: false,
+                          showPlayAll: !PlatformUtils.isDesktop,
+                        ),
                 ),
               ),
           ],
@@ -1013,54 +1172,15 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
         Offstage(
           offstage: isFullScreen,
           child: SizedBox(
-            width: maxWidth - width - padding.horizontal,
-            height: maxHeight - padding.top,
-            child: Scaffold(
-              key: videoDetailController.childKey,
-              resizeToAvoidBottomInset: false,
-              backgroundColor: Colors.transparent,
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (PlatformUtils.isDesktop &&
-                      videoDetailController.isPlayAll)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
-                      child: playlistIndicator(compact: true),
-                    ),
-                  buildTabBar(
-                    introText: '相关视频',
-                    showIntro: videoDetailController.isFileSource
-                        ? true
-                        : showIntro,
-                  ),
-                  Expanded(
-                    child: tabBarView(
-                      controller: videoDetailController.tabCtr,
-                      children: [
-                        if (videoDetailController.isFileSource)
-                          localIntroPanel()
-                        else if (showIntro)
-                          KeepAliveWrapper(
-                            child: CustomScrollView(
-                              key: const PageStorageKey(CommonIntroController),
-                              controller:
-                                  videoDetailController.effectiveIntroScrollCtr,
-                              slivers: [
-                                RelatedVideoPanel(
-                                  key: videoRelatedKey,
-                                  heroTag: heroTag,
-                                ),
-                              ],
-                            ),
-                          ),
-                        if (videoDetailController.showReply) videoReplyPanel(),
-                        if (_shouldShowSeasonPanel) seasonPanel,
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            width: sidePanelWidth,
+            height: sidePanelHeight,
+            child: _buildSidePanel(
+              panelWidth: sidePanelWidth,
+              panelHeight: sidePanelHeight,
+              showIntro: showRelated,
+              relatedOnly: true,
+              introText: '相关视频',
+              showReplyOverride: moveReplyToLeft ? false : null,
             ),
           ),
         ),
@@ -1370,6 +1490,8 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
           child = childWhenDisabled;
         } else if (maxWidth / maxHeight >= kScreenRatio) {
           child = childWhenDisabledLandscape;
+        } else if (PlatformUtils.isDesktop && maxWidth >= 680) {
+          child = childWhenDisabledLandscape;
         } else if (maxWidth / Style.aspectRatio16x9 < 0.4 * maxHeight) {
           child = childWhenDisabled;
         } else {
@@ -1402,12 +1524,14 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     bool needIndicator = true,
     String? introText,
     bool showIntro = true,
+    bool? showReply,
     VoidCallback? onTap,
   }) {
+    final effectiveShowReply = showReply ?? videoDetailController.showReply;
     List<String> tabs = [
       if (showIntro)
         videoDetailController.isFileSource ? '离线视频' : introText ?? '简介',
-      if (videoDetailController.showReply) '评论',
+      if (effectiveShowReply) '评论',
       if (_shouldShowSeasonPanel) '播放列表',
     ];
     if (videoDetailController.tabCtr.length != tabs.length) {
@@ -1966,6 +2090,63 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
           ],
         ],
       ),
+    );
+  }
+
+  Widget _combinedIntroReply({
+    required double width,
+    required double height,
+  }) {
+    return CustomScrollView(
+      slivers: [
+        if (videoDetailController.isUgc) ...[
+          UgcIntroPanel(
+            key: videoIntroKey,
+            heroTag: heroTag,
+            showAiBottomSheet: showAiBottomSheet,
+            showEpisodes: showEpisodes,
+            onShowMemberPage: onShowMemberPage,
+            isPortrait: isPortrait,
+            isHorizontal: width / height >= kScreenRatio,
+          ),
+        ] else
+          PgcIntroPage(
+            key: videoIntroKey,
+            heroTag: heroTag,
+            cid: videoDetailController.cid.value,
+            showEpisodes: showEpisodes,
+            showIntroDetail: showIntroDetail,
+            maxWidth: width,
+            isLandscape: !isPortrait,
+          ),
+        if (videoDetailController.isPlayAll)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: playlistIndicator(compact: true),
+            ),
+          ),
+        SliverToBoxAdapter(
+          child: Divider(
+            height: 1,
+            indent: 12,
+            endIndent: 12,
+            color: themeData.colorScheme.outline.withValues(alpha: 0.08),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Obx(() {
+            final count = _videoReplyController.count.value;
+            return _sectionHeader(
+              '评论${count == -1 ? '' : ' ${NumUtils.numFormat(count)}'}',
+            );
+          }),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: true,
+          child: videoReplyPanel(isNested: true),
+        ),
+      ],
     );
   }
 

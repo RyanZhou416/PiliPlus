@@ -53,6 +53,20 @@ List<SettingsModel> get styleSettings => [
       defaultVal: true,
       needReboot: true,
     ),
+    const SwitchModel(
+      title: '点击主页按钮时关闭当前标签页',
+      subtitle: '在视频播放器等页面中点击主页按钮后，自动关闭当前标签页',
+      leading: Icon(Icons.tab_unselected),
+      setKey: SettingBoxKey.closeTabOnHome,
+      defaultVal: false,
+    ),
+    const SwitchModel(
+      title: '返回主页时暂停视频',
+      subtitle: '不关闭标签页时，切换到主页后暂停当前播放的视频',
+      leading: Icon(Icons.pause_circle_outline),
+      setKey: SettingBoxKey.pauseOnHome,
+      defaultVal: true,
+    ),
   ],
   if (Platform.isLinux) _useSSDModel(),
   SwitchModel(

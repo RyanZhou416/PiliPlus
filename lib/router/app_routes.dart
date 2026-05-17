@@ -44,6 +44,7 @@ abstract final class AppRoutes {
   static const loginPage = '/loginPage';
   static const memberDynamics = '/memberDynamics';
   static const logs = '/logs';
+  static const netDebug = '/netDebug';
   static const subscription = '/subscription';
   static const subDetail = '/subDetail';
   static const danmakuBlock = '/danmakuBlock';

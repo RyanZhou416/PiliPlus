@@ -27,6 +27,26 @@ abstract final class Nav {
     _tabManager = tm;
   }
 
+  static void updateTabTitle(String title) {
+    if (_isDesktopTabMode) {
+      _tabManager!.activeTab.title.value = title;
+    }
+  }
+
+  static void goHome({bool closeCurrentTab = false}) {
+    if (_isDesktopTabMode) {
+      final currentIndex = _tabManager!.activeIndex.value;
+      if (closeCurrentTab && !_tabManager!.activeTab.pinned) {
+        _tabManager!.switchTo(0);
+        _tabManager!.closeTab(currentIndex);
+      } else {
+        _tabManager!.switchTo(0);
+      }
+      return;
+    }
+    router.go('/');
+  }
+
   static bool get _isDesktopTabMode =>
       PlatformUtils.isDesktop && _tabManager != null;
 

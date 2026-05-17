@@ -233,6 +233,9 @@ class LiveRoomController extends GetxController {
     if (res case Success(:final response)) {
       roomInfoH5.value = response;
       title.value = response.roomInfo?.title ?? '';
+      if (title.value.isNotEmpty) {
+        Nav.updateTabTitle(title.value);
+      }
       watchedShow.value = response.watchedShow?.textLarge;
       videoPlayerServiceHandler?.onVideoDetailChange(response, roomId, heroTag);
     } else {

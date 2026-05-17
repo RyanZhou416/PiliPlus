@@ -59,6 +59,7 @@ import 'package:PiliPlus/pages/setting/pages/color_select.dart';
 import 'package:PiliPlus/pages/setting/pages/display_mode.dart';
 import 'package:PiliPlus/pages/setting/pages/font_size_select.dart';
 import 'package:PiliPlus/pages/setting/pages/logs.dart';
+import 'package:PiliPlus/pages/setting/pages/net_debug.dart';
 import 'package:PiliPlus/pages/setting/pages/play_speed_set.dart';
 import 'package:PiliPlus/pages/setting/play_setting.dart';
 import 'package:PiliPlus/pages/setting/privacy_setting.dart';
@@ -129,6 +130,7 @@ abstract final class PageRegistry {
     AppRoutes.loginPage: LoginPage.new,
     AppRoutes.memberDynamics: MemberDynamicsPage.new,
     AppRoutes.logs: LogsPage.new,
+    AppRoutes.netDebug: NetDebugPage.new,
     AppRoutes.subscription: SubPage.new,
     AppRoutes.subDetail: SubDetailPage.new,
     AppRoutes.danmakuBlock: DanmakuBlockPage.new,

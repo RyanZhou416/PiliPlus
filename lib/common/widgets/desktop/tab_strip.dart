@@ -53,68 +53,178 @@ class _TabItemState extends State<_TabItem> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isPinned = widget.tab.pinned;
     return MouseRegion(
       onEnter: (_) => setState(() => _hovering = true),
       onExit: (_) => setState(() => _hovering = false),
       child: GestureDetector(
         onTap: widget.onTap,
         child: Container(
-          constraints: const BoxConstraints(
-            maxWidth: 200,
-            minWidth: 40,
-          ),
+          width: isPinned ? 36 : 160,
           height: 32,
           margin: const EdgeInsets.only(top: 4, right: 1),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: EdgeInsets.symmetric(horizontal: isPinned ? 0 : 8),
           decoration: BoxDecoration(
             color: widget.isActive
                 ? colorScheme.surface
                 : (_hovering
-                    ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+                    ? colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.5)
                     : Colors.transparent),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(8)),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (widget.tab.icon != null && widget.tab.pinned)
-                Icon(
-                  widget.tab.icon,
-                  size: 16,
-                  color: widget.isActive
-                      ? colorScheme.primary
-                      : colorScheme.onSurfaceVariant,
-                ),
-              if (!widget.tab.pinned) ...[
-                Flexible(
-                  child: Obx(() => Text(
-                    widget.tab.title.value,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: widget.isActive
-                          ? colorScheme.onSurface
-                          : colorScheme.onSurfaceVariant,
-                    ),
-                  )),
-                ),
-                if (_hovering || widget.isActive)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4),
-                    child: GestureDetector(
-                      onTap: widget.onClose,
-                      child: Icon(
-                        Icons.close,
-                        size: 14,
-                        color: colorScheme.onSurfaceVariant,
+          child: isPinned
+              ? Center(
+                  child: Icon(
+                    widget.tab.icon,
+                    size: 16,
+                    color: widget.isActive
+                        ? colorScheme.primary
+                        : colorScheme.onSurfaceVariant,
+                  ),
+                )
+              : Row(
+                  children: [
+                    Expanded(
+                      child: ClipRect(
+                        child: Obx(() => _MarqueeText(
+                              text: widget.tab.title.value,
+                              hovering: _hovering,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: widget.isActive
+                                    ? colorScheme.onSurface
+                                    : colorScheme.onSurfaceVariant,
+                              ),
+                            )),
                       ),
                     ),
-                  ),
-              ],
-            ],
-          ),
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: widget.onClose,
+                      child: AnimatedOpacity(
+                        opacity: _hovering || widget.isActive ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 150),
+                        child: Icon(
+                          Icons.close,
+                          size: 14,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
         ),
+      ),
+    );
+  }
+}
+
+class _MarqueeText extends StatefulWidget {
+  const _MarqueeText({
+    required this.text,
+    required this.hovering,
+    required this.style,
+  });
+
+  final String text;
+  final bool hovering;
+  final TextStyle style;
+
+  @override
+  State<_MarqueeText> createState() => _MarqueeTextState();
+}
+
+class _MarqueeTextState extends State<_MarqueeText>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  final _scrollController = ScrollController();
+  bool _isOverflowing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this);
+    _controller.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_onScroll);
+    _controller.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(_MarqueeText old) {
+    super.didUpdateWidget(old);
+    if (widget.text != old.text) {
+      _controller.stop();
+      _controller.reset();
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _checkOverflow();
+      });
+    }
+    if (widget.hovering != old.hovering) {
+      if (widget.hovering && _isOverflowing) {
+        _startMarquee();
+      } else {
+        _stopMarquee();
+      }
+    }
+  }
+
+  void _checkOverflow() {
+    if (!_scrollController.hasClients) return;
+    _isOverflowing = _scrollController.position.maxScrollExtent > 0;
+  }
+
+  void _startMarquee() {
+    if (!_scrollController.hasClients) return;
+    final max = _scrollController.position.maxScrollExtent;
+    if (max <= 0) return;
+    final duration = Duration(milliseconds: (max * 30).toInt().clamp(1500, 8000));
+    _controller.duration = duration;
+    _controller.repeat();
+  }
+
+  void _stopMarquee() {
+    _controller.stop();
+    _controller.reset();
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final max = _scrollController.position.maxScrollExtent;
+    _scrollController.jumpTo(max * _controller.value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _checkOverflow();
+    });
+    return SingleChildScrollView(
+      controller: _scrollController,
+      scrollDirection: Axis.horizontal,
+      physics: const NeverScrollableScrollPhysics(),
+      child: Text(
+        widget.text,
+        maxLines: 1,
+        softWrap: false,
+        style: widget.style,
       ),
     );
   }

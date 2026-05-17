@@ -210,6 +210,13 @@ Commit Hash: ${BuildConfig.commitHash}''',
             trailing: Icon(Icons.arrow_forward, size: 16, color: outline),
           ),
           ListTile(
+            onTap: () => Nav.push('/netDebug'),
+            leading: const Icon(Icons.network_check_outlined),
+            title: const Text('网络调试日志'),
+            subtitle: Text('HTTP请求/播放器缓冲诊断', style: subTitleStyle),
+            trailing: Icon(Icons.arrow_forward, size: 16, color: outline),
+          ),
+          ListTile(
             onTap: () {
               if (cacheSize.value.isNotEmpty) {
                 showConfirmDialog(

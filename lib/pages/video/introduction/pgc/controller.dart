@@ -63,6 +63,10 @@ class PgcIntroController extends CommonIntroController {
     isPgc = args['videoType'] == VideoType.pgc;
     pgcItem = args['pgcItem'];
 
+    if (pgcItem.title?.isNotEmpty == true) {
+      Nav.updateTabTitle(pgcItem.title!);
+    }
+
     super.onInit();
 
     if (isPgc) {
