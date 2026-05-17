@@ -153,4 +153,10 @@ docs/
 
 # Portable builds
 PiliPlus_Portable/
+PiliPlus_Portable_new/
 PiliPlus_Portable.zip
+
+# Debug/diagnose output
+net_diagnose_result.*
+playback_log.txt
+playback_stutter_result.txt
