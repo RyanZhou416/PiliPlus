@@ -387,6 +387,12 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
   // 离开当前页面时
   void didPushNext() {
     super.didPushNext();
+
+    // 播放器内部面板（设置、清晰度等）是浮层，不应暂停播放
+    if (plPlayerController?.isShowingPlayerSheet == true) {
+      return;
+    }
+
     isShowing = false;
 
     removeObserverMobile(this);
@@ -417,6 +423,11 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     super.didPopNext();
 
     if (videoDetailController.plPlayerController.isCloseAll) {
+      return;
+    }
+
+    // 如果 didPushNext 因为是播放器内部面板而被跳过，这里也跳过
+    if (isShowing) {
       return;
     }
 

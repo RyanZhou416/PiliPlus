@@ -17,7 +17,8 @@ mixin HeaderMixin<T extends StatefulWidget> on State<T> {
     StatefulWidgetBuilder builder, {
     double? padding,
   }) {
-    return PageUtils.showVideoBottomSheet(
+    plPlayerController.isShowingPlayerSheet = true;
+    final future = PageUtils.showVideoBottomSheet(
       context,
       isFullScreen: () => isFullScreen,
       padding: padding,
@@ -30,6 +31,13 @@ mixin HeaderMixin<T extends StatefulWidget> on State<T> {
             : builder(context, setState),
       ),
     );
+    future?.whenComplete(() {
+      plPlayerController.isShowingPlayerSheet = false;
+    });
+    if (future == null) {
+      plPlayerController.isShowingPlayerSheet = false;
+    }
+    return future;
   }
 
   Widget resetBtn(ThemeData theme, Object def, VoidCallback onPressed) {

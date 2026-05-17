@@ -1696,6 +1696,9 @@ class PlPlayerController with BlockConfigMixin {
   bool _isCloseAll = false;
   bool get isCloseAll => _isCloseAll;
 
+  /// 播放器设置面板打开时为 true，防止 didPushNext 暂停播放
+  bool isShowingPlayerSheet = false;
+
   Future<void>? resetScreenRotation() {
     if (horizontalScreen) {
       return fullMode();
