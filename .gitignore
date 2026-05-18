@@ -5,9 +5,11 @@
 *.swp
 .DS_Store
 .atom/
+.build/
 .buildlog/
 .history
 .svn/
+.swiftpm/
 migrate_working_dir/
 
 # IntelliJ related
@@ -160,3 +162,8 @@ PiliPlus_Portable.zip
 net_diagnose_result.*
 playback_log.txt
 playback_stutter_result.txt
+
+# Cursor
+.cursor/
+.cursorignore
+.cursorindexingignore

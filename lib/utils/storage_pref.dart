@@ -941,8 +941,6 @@ abstract final class Pref {
   static bool get pauseOnMinimize =>
       _setting.get(SettingBoxKey.pauseOnMinimize, defaultValue: false);
 
-  static bool get showWindowTitleBar =>
-      _setting.get(SettingBoxKey.showWindowTitleBar, defaultValue: true);
 
   static double get desktopVolume =>
       _setting.get(SettingBoxKey.desktopVolume, defaultValue: 1.0);

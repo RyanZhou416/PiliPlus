@@ -206,19 +206,26 @@ class _DesktopShellState extends State<DesktopShell>
     );
   }
 
+  static final bool _useMeta = Platform.isMacOS;
+
   Map<ShortcutActivator, VoidCallback> get _shortcuts => {
-        const SingleActivator(LogicalKeyboardKey.keyT, control: true): () =>
+        SingleActivator(LogicalKeyboardKey.keyT,
+            control: !_useMeta, meta: _useMeta): () =>
             _tabManager.openTab('/home'),
-        const SingleActivator(LogicalKeyboardKey.keyW, control: true): () =>
+        SingleActivator(LogicalKeyboardKey.keyW,
+            control: !_useMeta, meta: _useMeta): () =>
             _tabManager.closeCurrentTab(),
-        const SingleActivator(LogicalKeyboardKey.tab, control: true): () =>
+        SingleActivator(LogicalKeyboardKey.tab,
+            control: !_useMeta, meta: _useMeta): () =>
             _tabManager.nextTab(),
-        const SingleActivator(LogicalKeyboardKey.tab,
-            control: true, shift: true): () => _tabManager.previousTab(),
+        SingleActivator(LogicalKeyboardKey.tab,
+            control: !_useMeta, meta: _useMeta, shift: true): () =>
+            _tabManager.previousTab(),
         for (int i = 1; i <= 9; i++)
           SingleActivator(
             LogicalKeyboardKey(48 + i),
-            control: true,
+            control: !_useMeta,
+            meta: _useMeta,
           ): () => _tabManager.switchToN(i),
       };
 }

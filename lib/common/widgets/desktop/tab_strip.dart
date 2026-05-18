@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:PiliPlus/common/widgets/desktop/desktop_title_bar.dart';
 import 'package:PiliPlus/common/widgets/desktop/tab_manager.dart';
 import 'package:PiliPlus/common/widgets/desktop/tab_model.dart';
 import 'package:flutter/material.dart';
@@ -61,8 +64,11 @@ class _TabItemState extends State<_TabItem> {
         onTap: widget.onTap,
         child: Container(
           width: isPinned ? 36 : 160,
-          height: 32,
-          margin: const EdgeInsets.only(top: 4, right: 1),
+          height: DesktopTitleBar.height - 6,
+          margin: EdgeInsets.only(
+            top: Platform.isMacOS ? 0 : 4,
+            right: 1,
+          ),
           padding: EdgeInsets.symmetric(horizontal: isPinned ? 0 : 8),
           decoration: BoxDecoration(
             color: widget.isActive
@@ -251,9 +257,12 @@ class _NewTabButtonState extends State<_NewTabButton> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: Container(
-          width: 28,
-          height: 28,
-          margin: const EdgeInsets.only(left: 4, top: 4),
+          width: DesktopTitleBar.height - 10,
+          height: DesktopTitleBar.height - 10,
+          margin: EdgeInsets.only(
+            left: 4,
+            top: Platform.isMacOS ? 0 : 4,
+          ),
           decoration: BoxDecoration(
             color: _hovering
                 ? colorScheme.surfaceContainerHighest

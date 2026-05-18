@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:PiliPlus/common/widgets/desktop/tab_manager.dart';
 import 'package:PiliPlus/common/widgets/desktop/tab_strip.dart';
 import 'package:PiliPlus/common/widgets/desktop/window_controls.dart';
@@ -7,7 +9,9 @@ import 'package:window_manager/window_manager.dart';
 class DesktopTitleBar extends StatelessWidget {
   const DesktopTitleBar({super.key, required this.tabManager});
 
-  static const double height = 38;
+  static final bool _isMacOS = Platform.isMacOS;
+  static final double height = _isMacOS ? 28 : 38;
+  static const double _macTrafficLightWidth = 78;
 
   final TabManager tabManager;
 
@@ -23,7 +27,10 @@ class DesktopTitleBar extends StatelessWidget {
             behavior: HitTestBehavior.translucent,
             onPanStart: (_) => windowManager.startDragging(),
             onDoubleTap: _toggleMaximize,
-            child: const SizedBox(width: 12, height: height),
+            child: SizedBox(
+              width: _isMacOS ? _macTrafficLightWidth : 12,
+              height: height,
+            ),
           ),
           Expanded(
             child: GestureDetector(
@@ -39,7 +46,7 @@ class DesktopTitleBar extends StatelessWidget {
               ),
             ),
           ),
-          const WindowControls(),
+          if (!_isMacOS) const WindowControls(),
         ],
       ),
     );

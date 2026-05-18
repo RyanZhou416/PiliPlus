@@ -128,6 +128,7 @@ void main() async {
         ),
       );
     }
+    await setupServiceLocator();
   } else if (Platform.isMacOS) {
     await setupServiceLocator();
   }

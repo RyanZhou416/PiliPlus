@@ -8,15 +8,33 @@ class WindowControls extends StatefulWidget {
   State<WindowControls> createState() => _WindowControlsState();
 }
 
-class _WindowControlsState extends State<WindowControls> {
+class _WindowControlsState extends State<WindowControls>
+    with WindowListener {
   bool _isMaximized = false;
 
   @override
   void initState() {
     super.initState();
+    windowManager.addListener(this);
     windowManager.isMaximized().then((v) {
       if (mounted) setState(() => _isMaximized = v);
     });
+  }
+
+  @override
+  void dispose() {
+    windowManager.removeListener(this);
+    super.dispose();
+  }
+
+  @override
+  void onWindowMaximize() {
+    if (mounted) setState(() => _isMaximized = true);
+  }
+
+  @override
+  void onWindowUnmaximize() {
+    if (mounted) setState(() => _isMaximized = false);
   }
 
   @override

@@ -542,8 +542,7 @@ class RefreshIndicatorState extends State<RefreshIndicator>
           ),
       ],
     );
-    if (!widget.isClampingScrollPhysics &&
-        (Platform.isIOS || Platform.isMacOS)) {
+    if (!widget.isClampingScrollPhysics && Platform.isIOS) {
       return child;
     }
     return ScrollConfiguration(

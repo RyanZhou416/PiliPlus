@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:PiliPlus/common/assets.dart';
-import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/floating_navigation_bar.dart';
 import 'package:PiliPlus/common/widgets/flutter/pop_scope.dart';
@@ -11,8 +9,6 @@ import 'package:PiliPlus/common/widgets/route_aware_mixin.dart';
 import 'package:PiliPlus/models/common/nav_bar_config.dart';
 import 'package:PiliPlus/pages/home/view.dart';
 import 'package:PiliPlus/pages/main/controller.dart';
-import 'package:PiliPlus/plugin/pl_player/controller.dart';
-import 'package:PiliPlus/plugin/pl_player/models/play_status.dart';
 import 'package:PiliPlus/utils/app_scheme.dart';
 import 'package:PiliPlus/utils/extension/context_ext.dart';
 import 'package:PiliPlus/utils/extension/size_ext.dart';
@@ -20,13 +16,10 @@ import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:PiliPlus/utils/mobile_observer.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:PiliPlus/utils/storage.dart';
-import 'package:PiliPlus/utils/storage_key.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:tray_manager/tray_manager.dart';
-import 'package:window_manager/window_manager.dart';
 import 'package:PiliPlus/utils/nav.dart';
 
 class MainApp extends StatefulWidget {
@@ -37,14 +30,8 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends PopScopeState<MainApp>
-    with
-        RouteAware,
-        RouteAwareMixin,
-        WidgetsBindingObserver,
-        WindowListener,
-        TrayListener {
+    with RouteAware, RouteAwareMixin, WidgetsBindingObserver {
   final _mainController = Get.put(MainController());
-  late final _setting = GStorage.setting;
   late EdgeInsets _padding;
   late ThemeData theme;
 
@@ -55,15 +42,7 @@ class _MainAppState extends PopScopeState<MainApp>
   void initState() {
     super.initState();
     addObserverMobile(this);
-    if (PlatformUtils.isDesktop) {
-      windowManager
-        ..addListener(this)
-        ..setPreventClose(true);
-      if (_mainController.showTrayIcon) {
-        trayManager.addListener(this);
-        _handleTray();
-      }
-    } else {
+    if (!PlatformUtils.isDesktop) {
       // FlutterSmartDialog throws
       PiliScheme.init();
     }
@@ -77,9 +56,6 @@ class _MainAppState extends PopScopeState<MainApp>
     final brightness = theme.brightness;
     NetworkImgLayer.reduce =
         NetworkImgLayer.reduceLuxColor != null && brightness.isDark;
-    if (PlatformUtils.isDesktop) {
-      windowManager.setBrightness(brightness);
-    }
     if (!_mainController.useSideBar) {
       _mainController.useBottomNav = MediaQuery.sizeOf(context).isPortrait;
     }
@@ -113,141 +89,10 @@ class _MainAppState extends PopScopeState<MainApp>
 
   @override
   void dispose() {
-    if (PlatformUtils.isDesktop) {
-      trayManager.removeListener(this);
-      windowManager.removeListener(this);
-    }
     removeObserverMobile(this);
     PiliScheme.listener?.cancel();
     GStorage.close();
     super.dispose();
-  }
-
-  @override
-  void onWindowMaximize() {
-    _setting.put(SettingBoxKey.isWindowMaximized, true);
-  }
-
-  @override
-  void onWindowUnmaximize() {
-    _setting.put(SettingBoxKey.isWindowMaximized, false);
-  }
-
-  @override
-  Future<void> onWindowMoved() async {
-    if (PlPlayerController.instance?.isDesktopPip ?? false) {
-      return;
-    }
-    final Offset offset = await windowManager.getPosition();
-    _setting.put(SettingBoxKey.windowPosition, [offset.dx, offset.dy]);
-  }
-
-  @override
-  Future<void> onWindowResized() async {
-    if (PlPlayerController.instance?.isDesktopPip ?? false) {
-      return;
-    }
-    final Rect bounds = await windowManager.getBounds();
-    _setting.putAll({
-      SettingBoxKey.windowSize: [bounds.width, bounds.height],
-      SettingBoxKey.windowPosition: [bounds.left, bounds.top],
-    });
-  }
-
-  @override
-  void onWindowClose() {
-    if (_mainController.showTrayIcon && _mainController.minimizeOnExit) {
-      windowManager.hide();
-      _onHideWindow();
-    } else {
-      _onClose();
-    }
-  }
-
-  Future<void> _onClose() async {
-    await GStorage.compact();
-    await GStorage.close();
-    await trayManager.destroy();
-    if (Platform.isWindows) {
-      const MethodChannel('window_control').invokeMethod('closeWindow');
-    } else {
-      exit(0);
-    }
-  }
-
-  @override
-  void onWindowMinimize() {
-    _onHideWindow();
-  }
-
-  @override
-  void onWindowRestore() {
-    _onShowWindow();
-  }
-
-  void _onHideWindow() {
-    if (_mainController.pauseOnMinimize) {
-      if (PlPlayerController.instance case final player?) {
-        if (_mainController.isPlaying = player.playerStatus.isPlaying) {
-          player.pause();
-        }
-      } else {
-        _mainController.isPlaying = false;
-      }
-    }
-  }
-
-  void _onShowWindow() {
-    if (_mainController.pauseOnMinimize && _mainController.isPlaying) {
-      PlPlayerController.instance?.play();
-    }
-  }
-
-  @override
-  Future<void> onTrayIconMouseDown() async {
-    if (await windowManager.isVisible()) {
-      _onHideWindow();
-      windowManager.hide();
-    } else {
-      _onShowWindow();
-      windowManager.show();
-    }
-  }
-
-  @override
-  Future<void> onTrayIconRightMouseDown() async {
-    // ignore: deprecated_member_use
-    trayManager.popUpContextMenu(bringAppToFront: true);
-  }
-
-  @override
-  void onTrayMenuItemClick(MenuItem menuItem) {
-    switch (menuItem.key) {
-      case 'show':
-        windowManager.show();
-      case 'exit':
-        _onClose();
-    }
-  }
-
-  Future<void> _handleTray() async {
-    if (Platform.isWindows) {
-      await trayManager.setIcon(Assets.logoIco);
-    } else {
-      await trayManager.setIcon(Assets.logoLarge);
-    }
-    if (!Platform.isLinux) {
-      await trayManager.setToolTip(Constants.appName);
-    }
-
-    Menu trayMenu = Menu(
-      items: [
-        MenuItem(key: 'show', label: '显示窗口'),
-        MenuItem.separator(),
-        MenuItem(key: 'exit', label: '退出 ${Constants.appName}'),
-      ],
-    );
-    await trayManager.setContextMenu(trayMenu);
   }
 
   static void _onBack() {
